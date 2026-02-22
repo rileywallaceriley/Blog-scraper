@@ -518,11 +518,12 @@ async function callOpenAI(apiKey, story) {
     '1. TARGET LENGTH: 280–320 words. Do not stop short. Expand using verified context where needed.',
     '2. NO ANALOGIES or JOKES borrowed from the original article. Invent none of your own either — stay factual.',
     '3. NO PLAGIARISM: do not reproduce sentence structures, phrasing, or sequences from the original. Fully rework every idea in your own words.',
-    '4. CONTEXT EXPANSION: If the story is short, you may add factual context such as: chart positions, certified sales/streams figures, previous album/project names, label affiliations, confirmed tour dates, or award history — but ONLY facts you are confident are documented and accurate. If you are unsure of a specific figure, omit it rather than guess.',
-    '5. NO HALLUCINATION: never invent quotes, events, dates, or statistics. Stick to what is in the article or well-established public record.',
-    '6. STRUCTURE: Write in flowing paragraphs, not bullet points. Do not use headers.',
-    '7. OPENING: Start directly with the story. Never begin with "Here is...", "In a...", or any meta-preamble.',
-    '8. TONE: Match the ' + style + ' voice throughout — but keep all facts accurate regardless of tone.'
+    '4. DIRECT QUOTES FROM ARTISTS: You MAY and SHOULD include direct quotes from the artist, rapper, musician, or subject of the story — reproducing their exact words in quotation marks is not plagiarism and adds authenticity. Do NOT quote the journalist or writer. When an artist quote is present in the source, use it verbatim rather than paraphrasing it.',
+    '5. CONTEXT EXPANSION: If the story is short, you may add factual context such as: chart positions, certified sales/streams figures, previous album/project names, label affiliations, confirmed tour dates, or award history — but ONLY facts you are confident are documented and accurate. If you are unsure of a specific figure, omit it rather than guess.',
+    '6. NO HALLUCINATION: never invent quotes, events, dates, or statistics. Only use artist quotes that appear explicitly in the source article. Stick to what is in the article or well-established public record.',
+    '7. STRUCTURE: Write in flowing paragraphs, not bullet points. Do not use headers.',
+    '8. OPENING: Start directly with the story. Never begin with "Here is...", "In a...", or any meta-preamble.',
+    '9. TONE: Match the ' + style + ' voice throughout — but keep all facts accurate regardless of tone.'
   ].join('\n');
 
   var userPrompt = 'Rewrite the following hip hop news story. Remember: 280–320 words, no borrowed analogies or jokes, no hallucinations.\n\nTitle: ' + story.title + '\n\nArticle content:\n' + (story.description || '(No body text available — expand from the title using only well-known documented facts about the artist or topic.)');
