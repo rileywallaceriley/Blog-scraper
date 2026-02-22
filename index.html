@@ -189,6 +189,119 @@ transform: translateY(120px); opacity: 0; transition: all 0.3s ease; z-index: 10
 }
 @media(min-width: 500px) { .toast { left: auto; width: 300px; } }
 .toast.show { transform: translateY(0); opacity: 1; }
+
+/* ── Styled rewrite body ── */
+.rewrite-body { font-size: 0.9rem; line-height: 1.8; color: #f0ece4; }
+.rewrite-body p { margin-bottom: 14px; }
+.rewrite-body p:last-child { margin-bottom: 0; }
+.rewrite-body blockquote {
+border-left: 3px solid #ffd600;
+margin: 18px 0;
+padding: 10px 16px;
+background-color: #111111;
+font-style: italic;
+color: #ffd600;
+font-size: 0.95rem;
+line-height: 1.7;
+}
+.rewrite-body blockquote cite {
+display: block;
+margin-top: 6px;
+font-style: normal;
+font-family: ‘Space Mono’, monospace;
+font-size: 0.58rem;
+letter-spacing: 1px;
+color: #666666;
+text-transform: uppercase;
+}
+.rewrite-body .drop-cap::first-letter {
+font-family: ‘Bebas Neue’, sans-serif;
+font-size: 3.2rem;
+line-height: 0.8;
+float: left;
+margin-right: 8px;
+margin-top: 4px;
+color: #ff3c00;
+}
+
+/* ── WordPress panel ── */
+.wp-panel {
+background-color: #111111;
+border: 1px solid #2a2a2a;
+border-top: 2px solid #ff3c00;
+border-radius: 2px;
+padding: 16px 20px;
+margin-bottom: 16px;
+display: none;
+}
+.wp-panel.open { display: block; }
+.wp-panel-header {
+display: flex;
+align-items: center;
+justify-content: space-between;
+margin-bottom: 14px;
+}
+.wp-panel-title {
+font-family: ‘Bebas Neue’, sans-serif;
+font-size: 1.1rem;
+letter-spacing: 3px;
+color: #f0ece4;
+}
+.wp-fields {
+display: grid;
+grid-template-columns: 1fr 1fr 1fr;
+gap: 10px;
+}
+@media(max-width: 700px) { .wp-fields { grid-template-columns: 1fr; } }
+.wp-field label {
+display: block;
+font-family: ‘Space Mono’, monospace;
+font-size: 0.55rem;
+color: #666666;
+letter-spacing: 2px;
+text-transform: uppercase;
+margin-bottom: 5px;
+}
+.wp-field input {
+width: 100%;
+background-color: #0a0a0a;
+border: 1px solid #2a2a2a;
+border-radius: 2px;
+padding: 7px 10px;
+color: #f0ece4;
+font-family: ‘Space Mono’, monospace;
+font-size: 0.7rem;
+outline: none;
+transition: border-color 0.15s;
+}
+.wp-field input:focus { border-color: #ff3c00; }
+.wp-field input::placeholder { color: #333333; }
+.wp-note {
+font-family: ‘Space Mono’, monospace;
+font-size: 0.58rem;
+color: #444444;
+letter-spacing: 1px;
+margin-top: 10px;
+}
+.wp-note a { color: #666666; }
+.btn-sm.wp-push { border-color: #3a86ff; color: #3a86ff; }
+.btn-sm.wp-push:hover { background-color: #3a86ff; color: #ffffff; }
+.btn-sm.wp-push:disabled { border-color: #2a2a2a; color: #333333; cursor: not-allowed; }
+.btn-wp-toggle {
+font-family: ‘Space Mono’, monospace;
+font-size: 0.6rem;
+letter-spacing: 1px;
+padding: 6px 14px;
+border: 1px solid #3a86ff;
+border-radius: 2px;
+cursor: pointer;
+background: none;
+color: #3a86ff;
+text-transform: uppercase;
+transition: all 0.15s;
+white-space: nowrap;
+}
+.btn-wp-toggle:hover { background-color: #3a86ff; color: #ffffff; }
 </style>
 
 </head>
@@ -237,12 +350,37 @@ transform: translateY(120px); opacity: 0; transition: all 0.3s ease; z-index: 10
   </select>
   <button class="btn btn-primary" id="fetchBtn">FETCH STORIES</button>
   <span style="font-family:'Space Mono',monospace;font-size:0.58rem;color:#00ff88;letter-spacing:1px;border:1px solid #00ff88;padding:6px 10px;border-radius:2px;white-space:nowrap;">&#9679; 48H FRESH ONLY</span>
+  <button class="btn-wp-toggle" id="wpToggle" onclick="toggleWP()">&#9654; WORDPRESS</button>
 </div>
 ```
 
   </div>
 
   <div class="debug-log" id="debugLog"></div>
+
+  <!-- WordPress Panel -->
+
+  <div class="wp-panel" id="wpPanel">
+    <div class="wp-panel-header">
+      <span class="wp-panel-title">WordPress Integration</span>
+      <span style="font-family:'Space Mono',monospace;font-size:0.6rem;color:#444;letter-spacing:1px;">Pushes as DRAFT — you review before publishing</span>
+    </div>
+    <div class="wp-fields">
+      <div class="wp-field">
+        <label>Site URL</label>
+        <input type="text" id="wpUrl" placeholder="https://yoursite.com" autocomplete="off">
+      </div>
+      <div class="wp-field">
+        <label>Username</label>
+        <input type="text" id="wpUser" placeholder="admin" autocomplete="off">
+      </div>
+      <div class="wp-field">
+        <label>Application Password</label>
+        <input type="password" id="wpPass" placeholder="xxxx xxxx xxxx xxxx" autocomplete="off">
+      </div>
+    </div>
+    <p class="wp-note">Use a WordPress <a href="https://make.wordpress.org/core/2020/11/05/application-passwords-integration-guide/" target="_blank">Application Password</a> — not your login password. Generate one under Users → Profile → Application Passwords.</p>
+  </div>
 
   <div id="rewriteBar" class="rewrite-bar" style="display:none">
     <div>
@@ -463,7 +601,10 @@ function renderStories() {
 }
 
 function wordCount(text) {
-  return text ? text.trim().split(/\s+/).length : 0;
+  if (!text) return 0;
+  var div = document.createElement('div');
+  div.innerHTML = text;
+  return (div.textContent || '').trim().split(/\s+/).filter(Boolean).length;
 }
 
 function createCard(story, idx) {
@@ -487,7 +628,7 @@ function createCard(story, idx) {
     (story.rewritten ?
       '<div class="card-rewritten">' +
         '<span class="rewrite-label">✦ AI Rewrite</span>' +
-        story.rewritten +
+        '<div class="rewrite-body" id="rb-' + idx + '"></div>' +
         '<div class="word-count" style="color:' + wcColor + '">' + wc + ' words</div>' +
       '</div>' : '') +
     '<div class="card-actions">' +
@@ -495,8 +636,19 @@ function createCard(story, idx) {
         (story.rewritten ? 'REWRITE AGAIN' : 'REWRITE') +
       '</button>' +
       (story.rewritten ? '<button class="btn-sm" onclick="copyText(' + idx + ')">COPY</button>' : '') +
+      (story.rewritten ? '<button class="btn-sm wp-push" id="wpbtn-' + idx + '" onclick="pushToWP(' + idx + ')">&#9654; WORDPRESS</button>' : '') +
       '<a class="original-link" href="' + story.link + '" target="_blank">&#8599; ORIGINAL</a>' +
     '</div>';
+  // Inject rewrite HTML safely (not via innerHTML concatenation)
+  if (story.rewritten) {
+    var rbEl = card.querySelector('#rb-' + idx);
+    if (rbEl) {
+      rbEl.innerHTML = story.rewritten;
+      // Add drop-cap class to first p
+      var firstP = rbEl.querySelector('p');
+      if (firstP) firstP.classList.add('drop-cap');
+    }
+  }
   return card;
 }
 
@@ -546,6 +698,7 @@ async function callOpenAI(apiKey, story) {
     '',
     'REWRITE RULES — follow these exactly:',
     '1. TARGET LENGTH: 280–320 words. Do not stop short. Expand using verified context where needed.',
+    '   OUTPUT FORMAT: Return clean HTML using only these tags: <p> for paragraphs, <blockquote> for direct artist/subject quotes (include a <cite> tag inside with the artist name), and nothing else. No <h1>, no <ul>, no <strong>, no markdown. The first <p> should be the opening paragraph. Each paragraph of body copy is its own <p>. Every direct artist quote gets its own <blockquote><p>quote text</p><cite>— Artist Name</cite></blockquote>.',
     '2. NO ANALOGIES or JOKES borrowed from the original article. Invent none of your own either — stay factual.',
     '3. NO PLAGIARISM: do not reproduce sentence structures, phrasing, or sequences from the original. Fully rework every idea in your own words.',
     '4. DIRECT QUOTES FROM ARTISTS: You MAY and SHOULD include direct quotes from the artist, rapper, musician, or subject of the story — reproducing their exact words in quotation marks is not plagiarism and adds authenticity. Do NOT quote the journalist or writer. When an artist quote is present in the source, use it verbatim rather than paraphrasing it.',
@@ -557,7 +710,7 @@ async function callOpenAI(apiKey, story) {
     '10. TONE: Match the ' + style + ' voice throughout — but keep all facts accurate regardless of tone.'
   ].join('\n');
 
-  var userPrompt = 'Rewrite the following hip hop news story. Remember: 280–320 words, preserve every named person/date/place/collaborator/stat from the source, no borrowed analogies or jokes, no hallucinations.\n\nTitle: ' + story.title + '\n\nArticle content:\n' + (story.description || '(No body text available — expand from the title using only well-known documented facts about the artist or topic.)');
+  var userPrompt = 'Rewrite the following hip hop news story. Return clean HTML (<p> and <blockquote> only). Remember: 280–320 words, preserve every named person/date/place/collaborator/stat from the source, no borrowed analogies or jokes, no hallucinations.\n\nTitle: ' + story.title + '\n\nArticle content:\n' + (story.description || '(No body text available — expand from the title using only well-known documented facts about the artist or topic.)');
 
   var res = await fetch('https://api.openai.com/v1/chat/completions', {
     method: 'POST',
@@ -629,6 +782,89 @@ function showToast(msg) {
   t.textContent = msg; t.classList.add('show');
   clearTimeout(toastTimeout);
   toastTimeout = setTimeout(function() { t.classList.remove('show'); }, 3500);
+}
+
+// ─── WordPress ────────────────────────────────────────────────────────────────
+function toggleWP() {
+  var panel = document.getElementById('wpPanel');
+  panel.classList.toggle('open');
+  var btn = document.getElementById('wpToggle');
+  btn.textContent = panel.classList.contains('open') ? '▼ WORDPRESS' : '▶ WORDPRESS';
+}
+
+function buildExcerpt(rewrittenHtml) {
+  var div = document.createElement('div');
+  div.innerHTML = rewrittenHtml;
+  var firstP = div.querySelector('p');
+  return firstP ? firstP.textContent.trim().slice(0, 280) : (div.textContent || '').trim().slice(0, 280);
+}
+
+function buildWPContent(story) {
+  // Wrap with proper WordPress post HTML
+  return '<h2>' + story.title + '</h2>\n' +
+    story.rewritten + '\n' +
+    '<p><em>Source: <a href="' + story.link + '" target="_blank">' + story.source + '</a></em></p>';
+}
+
+async function pushToWP(idx) {
+  var siteUrl = (document.getElementById('wpUrl').value || '').trim().replace(/\/$/, '');
+  var user    = (document.getElementById('wpUser').value || '').trim();
+  var pass    = (document.getElementById('wpPass').value || '').trim();
+
+  if (!siteUrl || !user || !pass) {
+    // Open panel if not open
+    document.getElementById('wpPanel').classList.add('open');
+    document.getElementById('wpToggle').textContent = '▼ WORDPRESS';
+    showToast('Fill in your WordPress details first!');
+    return;
+  }
+
+  var story = stories[idx];
+  if (!story.rewritten) { showToast('Rewrite the story first!'); return; }
+
+  var btn = document.getElementById('wpbtn-' + idx);
+  if (btn) { btn.disabled = true; btn.textContent = 'PUSHING...'; }
+
+  try {
+    var credentials = btoa(user + ':' + pass);
+    var endpoint = siteUrl + '/wp-json/wp/v2/posts';
+
+    var postData = {
+      title:   story.title,
+      content: buildWPContent(story),
+      excerpt: buildExcerpt(story.rewritten),
+      status:  'draft',
+      meta: {}
+    };
+
+    var res = await fetch(endpoint, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Basic ' + credentials
+      },
+      body: JSON.stringify(postData)
+    });
+
+    if (!res.ok) {
+      var err = await res.json().catch(function() { return {}; });
+      throw new Error(err.message || 'HTTP ' + res.status);
+    }
+
+    var result = await res.json();
+    showToast('Draft saved! Post ID: ' + result.id);
+    if (btn) {
+      btn.disabled = false;
+      btn.textContent = '✓ SENT';
+      btn.style.borderColor = '#00ff88';
+      btn.style.color = '#00ff88';
+    }
+    log('WordPress draft created: "' + story.title.slice(0,50) + '" → ID ' + result.id, 'ok');
+  } catch(e) {
+    showToast('WP Error: ' + e.message);
+    log('WordPress push failed: ' + e.message, 'err');
+    if (btn) { btn.disabled = false; btn.textContent = '▶ WORDPRESS'; }
+  }
 }
 </script>
 
