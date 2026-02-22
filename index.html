@@ -190,6 +190,26 @@ transform: translateY(120px); opacity: 0; transition: all 0.3s ease; z-index: 10
 @media(min-width: 500px) { .toast { left: auto; width: 300px; } }
 .toast.show { transform: translateY(0); opacity: 1; }
 
+/* ── Excerpt ── */
+.card-excerpt {
+font-size: 0.82rem;
+line-height: 1.6;
+color: #aaaaaa;
+font-style: italic;
+border-left: 2px solid #ff3c00;
+padding-left: 12px;
+margin-bottom: 4px;
+}
+.excerpt-label {
+font-family: ‘Space Mono’, monospace;
+font-size: 0.5rem;
+letter-spacing: 3px;
+text-transform: uppercase;
+color: #ff3c00;
+display: block;
+margin-bottom: 5px;
+}
+
 /* ── Styled rewrite body ── */
 .rewrite-body { font-size: 0.9rem; line-height: 1.8; color: #f0ece4; }
 .rewrite-body p { margin-bottom: 14px; }
@@ -363,7 +383,7 @@ white-space: nowrap;
   <div class="wp-panel" id="wpPanel">
     <div class="wp-panel-header">
       <span class="wp-panel-title">WordPress Integration</span>
-      <span style="font-family:'Space Mono',monospace;font-size:0.6rem;color:#444;letter-spacing:1px;">Pushes as DRAFT — you review before publishing</span>
+      <span style="font-family:'Space Mono',monospace;font-size:0.6rem;color:#444444;letter-spacing:1px;">Pushes as DRAFT — you review before publishing</span>
     </div>
     <div class="wp-fields">
       <div class="wp-field">
@@ -379,7 +399,16 @@ white-space: nowrap;
         <input type="password" id="wpPass" placeholder="xxxx xxxx xxxx xxxx" autocomplete="off">
       </div>
     </div>
-    <p class="wp-note">Use a WordPress <a href="https://make.wordpress.org/core/2020/11/05/application-passwords-integration-guide/" target="_blank">Application Password</a> — not your login password. Generate one under Users → Profile → Application Passwords.</p>
+    <div style="display:flex;align-items:center;gap:12px;margin-top:12px;flex-wrap:wrap;">
+      <button class="btn-sm wp-push" onclick="testWPConnection()" id="wpTestBtn">TEST CONNECTION</button>
+      <span id="wpStatus" style="font-family:'Space Mono',monospace;font-size:0.62rem;letter-spacing:1px;color:#444444;"></span>
+    </div>
+    <p class="wp-note" style="margin-top:10px;">
+      Requires WordPress REST API enabled (default on all standard installs).<br>
+      Use an <a href="https://make.wordpress.org/core/2020/11/05/application-passwords-integration-guide/" target="_blank" style="color:#888;">Application Password</a>
+      — generate one under <strong style="color:#888;">Users → Profile → Application Passwords</strong>.<br>
+      If you get 405: make sure <strong style="color:#888;">Settings → Permalinks</strong> is NOT set to "Plain".
+    </p>
   </div>
 
   <div id="rewriteBar" class="rewrite-bar" style="display:none">
@@ -628,6 +657,7 @@ function createCard(story, idx) {
     (story.rewritten ?
       '<div class="card-rewritten">' +
         '<span class="rewrite-label">✦ AI Rewrite</span>' +
+        (story.excerpt ? '<div class="card-excerpt"><span class="excerpt-label">Excerpt</span>' + story.excerpt + '</div>' : '') +
         '<div class="rewrite-body" id="rb-' + idx + '"></div>' +
         '<div class="word-count" style="color:' + wcColor + '">' + wc + ' words</div>' +
       '</div>' : '') +
@@ -682,7 +712,9 @@ async function rewriteSingle(idx) {
   }
 
   try {
-    stories[idx].rewritten = await callOpenAI(key, stories[idx]);
+    var result = await callOpenAI(key, stories[idx]);
+    stories[idx].rewritten = result.body;
+    stories[idx].excerpt = result.excerpt;
     updateCard(idx); updateProgress(); showToast('Story rewritten ✓');
   } catch(e) {
     showToast('Error: ' + e.message);
@@ -697,8 +729,15 @@ async function callOpenAI(apiKey, story) {
     'You are a hip hop culture journalist writing for a digital publication. Your voice matches that of a ' + style + '.',
     '',
     'REWRITE RULES — follow these exactly:',
-    '1. TARGET LENGTH: 280–320 words. Do not stop short. Expand using verified context where needed.',
-    '   OUTPUT FORMAT: Return clean HTML using only these tags: <p> for paragraphs, <blockquote> for direct artist/subject quotes (include a <cite> tag inside with the artist name), and nothing else. No <h1>, no <ul>, no <strong>, no markdown. The first <p> should be the opening paragraph. Each paragraph of body copy is its own <p>. Every direct artist quote gets its own <blockquote><p>quote text</p><cite>— Artist Name</cite></blockquote>.',
+    '1. TARGET LENGTH: 280–320 words for the body. Do not stop short. Expand using verified context where needed.',
+    '   OUTPUT FORMAT: Return a JSON object with exactly two keys — no markdown fences, just raw JSON:',
+    '   { "excerpt": "...", "body": "..." }',
+    '   excerpt: A single punchy sentence (max 30 words) that works as a post teaser. No quotes around it.',
+    '   body: Clean HTML using only <p>, <blockquote>, <cite>, and <em> tags. No <h1>, <ul>, <strong>, <br>, or markdown.',
+    '   - Each paragraph is its own <p>.',
+    '   - Every direct artist/subject quote gets: <blockquote><p>quote text</p><cite>— Artist Name</cite></blockquote>',
+    '   - All album, mixtape, EP, and project titles must be wrapped in <em> tags — never use quotation marks around them.',
+    '   - Song titles stay in quotation marks.',
     '2. NO ANALOGIES or JOKES borrowed from the original article. Invent none of your own either — stay factual.',
     '3. NO PLAGIARISM: do not reproduce sentence structures, phrasing, or sequences from the original. Fully rework every idea in your own words.',
     '4. DIRECT QUOTES FROM ARTISTS: You MAY and SHOULD include direct quotes from the artist, rapper, musician, or subject of the story — reproducing their exact words in quotation marks is not plagiarism and adds authenticity. Do NOT quote the journalist or writer. When an artist quote is present in the source, use it verbatim rather than paraphrasing it.',
@@ -710,14 +749,14 @@ async function callOpenAI(apiKey, story) {
     '10. TONE: Match the ' + style + ' voice throughout — but keep all facts accurate regardless of tone.'
   ].join('\n');
 
-  var userPrompt = 'Rewrite the following hip hop news story. Return clean HTML (<p> and <blockquote> only). Remember: 280–320 words, preserve every named person/date/place/collaborator/stat from the source, no borrowed analogies or jokes, no hallucinations.\n\nTitle: ' + story.title + '\n\nArticle content:\n' + (story.description || '(No body text available — expand from the title using only well-known documented facts about the artist or topic.)');
+  var userPrompt = 'Rewrite the following hip hop news story. Return ONLY a raw JSON object with keys "excerpt" and "body" — no markdown, no code fences. Remember: 280–320 words in body, album titles in <em> not quotes, preserve every named person/date/place/collaborator/stat, no borrowed analogies or jokes, no hallucinations.\n\nTitle: ' + story.title + '\n\nArticle content:\n' + (story.description || '(No body text available — expand from the title using only well-known documented facts about the artist or topic.)');
 
   var res = await fetch('https://api.openai.com/v1/chat/completions', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + apiKey },
     body: JSON.stringify({
       model: 'gpt-4o',
-      max_tokens: 600,
+      max_tokens: 800,
       temperature: 0.7,
       messages: [
         { role: 'system', content: systemPrompt },
@@ -731,7 +770,16 @@ async function callOpenAI(apiKey, story) {
     throw new Error((e.error && e.error.message) || 'HTTP ' + res.status);
   }
   var data = await res.json();
-  return data.choices[0].message.content.trim();
+  var raw = data.choices[0].message.content.trim();
+  // Strip markdown code fences if model wraps it anyway
+  raw = raw.replace(/^```json\s*/i, '').replace(/^```\s*/i, '').replace(/\s*```$/,'').trim();
+  try {
+    var parsed = JSON.parse(raw);
+    return { body: (parsed.body || '').trim(), excerpt: (parsed.excerpt || '').trim() };
+  } catch(e) {
+    // Fallback: if model ignored JSON instruction, treat whole thing as body
+    return { body: raw, excerpt: '' };
+  }
 }
 
 // ─── Rewrite All ──────────────────────────────────────────────────────────────
@@ -752,7 +800,9 @@ document.getElementById('rewriteAllBtn').addEventListener('click', async functio
           if (bodyEl) stories[i].description = bodyEl.textContent.replace(/\s+/g,' ').trim().slice(0,1500);
         } catch(e) {}
       }
-      stories[i].rewritten = await callOpenAI(key, stories[i]);
+      var res2 = await callOpenAI(key, stories[i]);
+      stories[i].rewritten = res2.body;
+      stories[i].excerpt = res2.excerpt;
       updateCard(i); updateProgress();
       await new Promise(function(r) { setTimeout(r, 500); });
     } catch(e) {
@@ -792,27 +842,85 @@ function toggleWP() {
   btn.textContent = panel.classList.contains('open') ? '▼ WORDPRESS' : '▶ WORDPRESS';
 }
 
-function buildExcerpt(rewrittenHtml) {
+function getWPConfig() {
+  var raw = (document.getElementById('wpUrl').value || '').trim();
+  // Strip trailing slash, force https if no protocol given
+  if (raw && !raw.match(/^https?:\/\//)) raw = 'https://' + raw;
+  raw = raw.replace(/\/+$/, '');
+  return {
+    siteUrl: raw,
+    user: (document.getElementById('wpUser').value || '').trim(),
+    pass: (document.getElementById('wpPass').value || '').trim()
+  };
+}
+
+function setWPStatus(msg, color) {
+  var el = document.getElementById('wpStatus');
+  if (el) { el.textContent = msg; el.style.color = color || '#666666'; }
+}
+
+async function testWPConnection() {
+  var cfg = getWPConfig();
+  if (!cfg.siteUrl || !cfg.user || !cfg.pass) {
+    setWPStatus('Fill in all three fields first.', '#ff3c00'); return;
+  }
+  var btn = document.getElementById('wpTestBtn');
+  btn.disabled = true; btn.textContent = 'TESTING...';
+  setWPStatus('Connecting...', '#ffd600');
+
+  try {
+    // Step 1 — check the REST API root is reachable
+    var rootRes = await fetch(cfg.siteUrl + '/wp-json/', {
+      method: 'GET',
+      headers: { 'Accept': 'application/json' }
+    });
+    if (!rootRes.ok) throw new Error('REST API root returned HTTP ' + rootRes.status + '. Check your site URL and that pretty permalinks are enabled (Settings → Permalinks).');
+    var rootData = await rootRes.json();
+    if (!rootData.routes || !rootData.routes['/wp/v2/posts']) {
+      throw new Error('Posts endpoint not found in REST API. Your site may have REST API disabled by a plugin.');
+    }
+
+    // Step 2 — verify credentials with a GET on /users/me
+    var credentials = btoa(cfg.user + ':' + cfg.pass);
+    var authRes = await fetch(cfg.siteUrl + '/wp-json/wp/v2/users/me', {
+      method: 'GET',
+      headers: {
+        'Authorization': 'Basic ' + credentials,
+        'Accept': 'application/json'
+      }
+    });
+    if (authRes.status === 401) throw new Error('Authentication failed. Check username and Application Password.');
+    if (authRes.status === 403) throw new Error('User does not have permission to create posts.');
+    if (!authRes.ok) throw new Error('Auth check failed with HTTP ' + authRes.status);
+    var userData = await authRes.json();
+
+    setWPStatus('✓ Connected as "' + (userData.name || cfg.user) + '" — ready to push drafts', '#00ff88');
+    log('WordPress connected: ' + cfg.siteUrl + ' as ' + (userData.name || cfg.user), 'ok');
+  } catch(e) {
+    setWPStatus('✗ ' + e.message, '#ff3c00');
+    log('WordPress test failed: ' + e.message, 'err');
+  }
+
+  btn.disabled = false; btn.textContent = 'TEST CONNECTION';
+}
+
+function buildExcerpt(story) {
+  // Use AI-generated excerpt if available, otherwise fall back to first paragraph
+  if (story.excerpt) return story.excerpt;
   var div = document.createElement('div');
-  div.innerHTML = rewrittenHtml;
+  div.innerHTML = story.rewritten || '';
   var firstP = div.querySelector('p');
   return firstP ? firstP.textContent.trim().slice(0, 280) : (div.textContent || '').trim().slice(0, 280);
 }
 
 function buildWPContent(story) {
-  // Wrap with proper WordPress post HTML
-  return '<h2>' + story.title + '</h2>\n' +
-    story.rewritten + '\n' +
-    '<p><em>Source: <a href="' + story.link + '" target="_blank">' + story.source + '</a></em></p>';
+  return story.rewritten +
+    '\n\n<p><em>Source: <a href="' + story.link + '" target="_blank">' + story.source + '</a></em></p>';
 }
 
 async function pushToWP(idx) {
-  var siteUrl = (document.getElementById('wpUrl').value || '').trim().replace(/\/$/, '');
-  var user    = (document.getElementById('wpUser').value || '').trim();
-  var pass    = (document.getElementById('wpPass').value || '').trim();
-
-  if (!siteUrl || !user || !pass) {
-    // Open panel if not open
+  var cfg = getWPConfig();
+  if (!cfg.siteUrl || !cfg.user || !cfg.pass) {
     document.getElementById('wpPanel').classList.add('open');
     document.getElementById('wpToggle').textContent = '▼ WORDPRESS';
     showToast('Fill in your WordPress details first!');
@@ -826,15 +934,14 @@ async function pushToWP(idx) {
   if (btn) { btn.disabled = true; btn.textContent = 'PUSHING...'; }
 
   try {
-    var credentials = btoa(user + ':' + pass);
-    var endpoint = siteUrl + '/wp-json/wp/v2/posts';
+    var credentials = btoa(cfg.user + ':' + cfg.pass);
+    var endpoint = cfg.siteUrl + '/wp-json/wp/v2/posts';
 
     var postData = {
-      title:   story.title,
-      content: buildWPContent(story),
-      excerpt: buildExcerpt(story.rewritten),
-      status:  'draft',
-      meta: {}
+      title:   { raw: story.title },
+      content: { raw: buildWPContent(story) },
+      excerpt: { raw: buildExcerpt(story) },
+      status:  'draft'
     };
 
     var res = await fetch(endpoint, {
@@ -846,23 +953,29 @@ async function pushToWP(idx) {
       body: JSON.stringify(postData)
     });
 
+    if (res.status === 405) {
+      throw new Error('405 Method Not Allowed — check that Settings → Permalinks is not set to "Plain", and that no security plugin is blocking the REST API.');
+    }
     if (!res.ok) {
       var err = await res.json().catch(function() { return {}; });
       throw new Error(err.message || 'HTTP ' + res.status);
     }
 
     var result = await res.json();
-    showToast('Draft saved! Post ID: ' + result.id);
+    var editUrl = cfg.siteUrl + '/wp-admin/post.php?post=' + result.id + '&action=edit';
+    showToast('Draft saved! Post #' + result.id);
     if (btn) {
       btn.disabled = false;
-      btn.textContent = '✓ SENT';
+      btn.textContent = '✓ DRAFT #' + result.id;
       btn.style.borderColor = '#00ff88';
       btn.style.color = '#00ff88';
+      btn.onclick = function() { window.open(editUrl, '_blank'); };
+      btn.title = 'Click to open draft in WP admin';
     }
-    log('WordPress draft created: "' + story.title.slice(0,50) + '" → ID ' + result.id, 'ok');
+    log('WP draft #' + result.id + ': "' + story.title.slice(0,50) + '" → ' + editUrl, 'ok');
   } catch(e) {
     showToast('WP Error: ' + e.message);
-    log('WordPress push failed: ' + e.message, 'err');
+    log('WP push failed: ' + e.message, 'err');
     if (btn) { btn.disabled = false; btn.textContent = '▶ WORDPRESS'; }
   }
 }
