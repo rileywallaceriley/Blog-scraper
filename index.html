@@ -4,7 +4,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>REWRITE — Hip Hop News</title>
+<title>FEED — Hip Hop News Scraper</title>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
 * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -16,7 +16,6 @@ border-bottom: 1px solid #2a2a2a;
 padding: 0 20px;
 display: flex;
 align-items: center;
-justify-content: space-between;
 height: 60px;
 position: sticky;
 top: 0;
@@ -24,20 +23,7 @@ z-index: 100;
 }
 .logo { font-family: ‘Bebas Neue’, sans-serif; font-size: 1.8rem; letter-spacing: 4px; color: #f0ece4; }
 .logo span { color: #ff3c00; }
-
-.api-key-wrap {
-display: flex; align-items: center; gap: 8px;
-background-color: #111111; border: 1px solid #2a2a2a; border-radius: 4px; padding: 6px 10px;
-}
-.api-key-wrap label {
-font-family: ‘Space Mono’, monospace; font-size: 0.55rem; color: #666666;
-text-transform: uppercase; letter-spacing: 2px; white-space: nowrap;
-}
-.api-key-wrap input {
-background: none; border: none; outline: none; color: #00ff88;
-font-family: ‘Space Mono’, monospace; font-size: 0.7rem; width: 150px;
-}
-.api-key-wrap input::placeholder { color: #2a2a2a; }
+.logo-sub { font-family: ‘Space Mono’, monospace; font-size: 0.55rem; color: #444444; letter-spacing: 3px; text-transform: uppercase; margin-left: 14px; margin-top: 6px; }
 
 .ticker { background-color: #ff3c00; padding: 5px 0; overflow: hidden; white-space: nowrap; }
 .ticker-inner {
@@ -47,9 +33,9 @@ font-family: ‘Space Mono’, monospace; font-size: 0.65rem; letter-spacing: 3p
 @keyframes ticker { from { transform: translateX(100vw); } to { transform: translateX(-100%); } }
 
 .container { max-width: 1200px; margin: 0 auto; padding: 24px 20px; }
+
 .controls { display: flex; flex-direction: column; gap: 14px; margin-bottom: 20px; }
 .source-chips { display: flex; gap: 8px; flex-wrap: wrap; }
-
 .chip {
 font-family: ‘Space Mono’, monospace; font-size: 0.6rem; letter-spacing: 1px;
 padding: 7px 14px; border: 1px solid #2a2a2a; border-radius: 2px; cursor: pointer;
@@ -57,12 +43,6 @@ background-color: #0a0a0a; color: #666666; text-transform: uppercase; transition
 }
 .chip.active { border-color: #ff3c00; color: #ff3c00; background-color: #1a0a05; }
 .chip.scrape { border-style: dashed; }
-.chip.scrape.active { border-style: dashed; }
-
-.chip-legend {
-font-family: ‘Space Mono’, monospace; font-size: 0.55rem; color: #444444; letter-spacing: 1px;
-}
-.chip-legend span { border: 1px dashed #444444; padding: 1px 6px; margin-right: 6px; }
 
 .controls-row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
 
@@ -75,11 +55,15 @@ transition: all 0.15s; white-space: nowrap;
 .btn-primary:hover { background-color: #ff5500; }
 .btn-primary:disabled { background-color: #2a2a2a; color: #444444; cursor: not-allowed; }
 
+.badge {
+font-family: ‘Space Mono’, monospace; font-size: 0.58rem; color: #00ff88; letter-spacing: 1px;
+border: 1px solid #00ff88; padding: 6px 10px; border-radius: 2px; white-space: nowrap;
+}
+
 .debug-log {
 background-color: #111111; border: 1px solid #2a2a2a; border-radius: 2px;
 padding: 10px 14px; margin-bottom: 16px; font-family: ‘Space Mono’, monospace;
-font-size: 0.6rem; color: #666666; letter-spacing: 1px;
-max-height: 80px; overflow-y: auto; display: none;
+font-size: 0.6rem; color: #666666; letter-spacing: 1px; max-height: 70px; overflow-y: auto; display: none;
 }
 .debug-log.visible { display: block; }
 .debug-log p { line-height: 1.9; }
@@ -87,15 +71,7 @@ max-height: 80px; overflow-y: auto; display: none;
 .debug-log p.err { color: #ff3c00; }
 .debug-log p.warn { color: #ffd600; }
 
-.rewrite-bar {
-display: flex; align-items: center; justify-content: space-between;
-background-color: #111111; border: 1px solid #2a2a2a; border-radius: 2px;
-padding: 12px 16px; margin-bottom: 16px; gap: 12px;
-}
-.rewrite-bar p { font-family: ‘Space Mono’, monospace; font-size: 0.65rem; color: #666666; letter-spacing: 1px; }
-.progress-bar-wrap { height: 2px; background-color: #2a2a2a; border-radius: 2px; margin-top: 6px; overflow: hidden; width: 120px; }
-.progress-bar-fill { height: 100%; background-color: #ff3c00; width: 0%; transition: width 0.3s; }
-
+/* Stories grid */
 .stories-grid {
 display: grid; grid-template-columns: 1fr; gap: 1px;
 background-color: #2a2a2a; border: 1px solid #2a2a2a;
@@ -105,43 +81,52 @@ background-color: #2a2a2a; border: 1px solid #2a2a2a;
 
 .story-card {
 background-color: #0a0a0a; padding: 22px; display: flex; flex-direction: column;
-gap: 12px; position: relative; overflow: hidden;
+gap: 12px; position: relative; overflow: hidden; transition: background-color 0.2s;
 }
+.story-card:hover { background-color: #111111; }
 .story-card::before {
 content: ‘’; position: absolute; top: 0; left: 0;
 width: 3px; height: 0; background-color: #ff3c00; transition: height 0.3s;
 }
-.story-card:hover { background-color: #111111; }
 .story-card:hover::before { height: 100%; }
 
-.card-meta { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+.card-meta { display: flex; justify-content: space-between; align-items: center; }
 .source-tag {
 font-family: ‘Space Mono’, monospace; font-size: 0.55rem; letter-spacing: 2px;
 color: #ff3c00; text-transform: uppercase; background-color: #1a0a05; padding: 3px 7px; border-radius: 1px;
 }
-.source-tag.scraped { border: 1px dashed #ff3c00; background-color: transparent; }
-.pub-date { font-family: ‘Space Mono’, monospace; font-size: 0.55rem; color: #444444; }
+.source-tag.scraped { background-color: transparent; border: 1px dashed #ff3c00; }
+.pub-date { font-family: ‘Space Mono’, monospace; font-size: 0.55rem; color: #00ff88; }
+.pub-date.unknown { color: #444444; }
 
-.card-title { font-family: ‘Bebas Neue’, sans-serif; font-size: 1.4rem; letter-spacing: 1px; line-height: 1.1; color: #f0ece4; }
-
-.card-original {
-font-size: 0.8rem; line-height: 1.6; color: #555555;
-border-left: 2px solid #2a2a2a; padding-left: 10px; font-style: italic;
-display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;
+.card-title {
+font-family: ‘Bebas Neue’, sans-serif; font-size: 1.4rem; letter-spacing: 1px;
+line-height: 1.1; color: #f0ece4;
 }
 
-.card-rewritten {
-font-size: 0.88rem; line-height: 1.7; color: #f0ece4;
-background-color: #0f0f08; border: 1px solid #2a2400; border-radius: 2px; padding: 14px;
+.card-body {
+font-size: 0.82rem; line-height: 1.65; color: #999999;
+display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden;
 }
-.rewrite-label {
-font-family: ‘Space Mono’, monospace; font-size: 0.52rem; letter-spacing: 3px;
-text-transform: uppercase; color: #ffd600; margin-bottom: 10px; display: block;
+
+/* Copy block — shown after clicking COPY FOR GPT */
+.copy-block {
+background-color: #0f0f0f; border: 1px solid #2a2a2a; border-radius: 2px;
+padding: 14px; display: none; flex-direction: column; gap: 10px;
 }
-.word-count {
-font-family: ‘Space Mono’, monospace; font-size: 0.5rem; color: #444444;
-letter-spacing: 1px; margin-top: 8px; text-align: right;
+.copy-block.open { display: flex; }
+.copy-text {
+font-family: ‘Space Mono’, monospace; font-size: 0.68rem; line-height: 1.7;
+color: #cccccc; white-space: pre-wrap; word-break: break-word;
+max-height: 200px; overflow-y: auto;
+scrollbar-width: thin; scrollbar-color: #2a2a2a #0f0f0f;
 }
+.copy-actions { display: flex; gap: 8px; align-items: center; }
+.copy-confirm {
+font-family: ‘Space Mono’, monospace; font-size: 0.58rem; color: #00ff88;
+letter-spacing: 1px; opacity: 0; transition: opacity 0.3s;
+}
+.copy-confirm.show { opacity: 1; }
 
 .card-actions { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
 .btn-sm {
@@ -150,9 +135,11 @@ padding: 6px 12px; border: 1px solid #2a2a2a; border-radius: 2px; cursor: pointe
 background: none; color: #666666; text-transform: uppercase; transition: all 0.15s;
 }
 .btn-sm:hover { border-color: #ff3c00; color: #ff3c00; }
-.btn-sm.rewrite-btn { border-color: #ff3c00; color: #ff3c00; }
-.btn-sm.rewrite-btn:hover { background-color: #ff3c00; color: #ffffff; }
-.btn-sm.rewrite-btn:disabled { border-color: #2a2a2a; color: #333333; cursor: not-allowed; }
+.btn-sm.primary { border-color: #ff3c00; color: #ff3c00; }
+.btn-sm.primary:hover { background-color: #ff3c00; color: #ffffff; }
+.btn-sm.blue { border-color: #3a86ff; color: #3a86ff; }
+.btn-sm.blue:hover { background-color: #3a86ff; color: #ffffff; }
+.btn-sm:disabled { border-color: #2a2a2a; color: #333333; cursor: not-allowed; }
 
 .original-link {
 font-family: ‘Space Mono’, monospace; font-size: 0.58rem; letter-spacing: 1px;
@@ -176,6 +163,13 @@ font-family: ‘Bebas Neue’, sans-serif; font-size: 3.5rem; color: #1a1a1a;
 letter-spacing: 8px; display: block; margin-bottom: 12px;
 }
 
+/* Story count */
+.story-count {
+font-family: ‘Space Mono’, monospace; font-size: 0.6rem; color: #444444;
+letter-spacing: 2px; margin-bottom: 12px;
+}
+.story-count span { color: #ff3c00; }
+
 .toast {
 position: fixed; bottom: 24px; right: 20px; left: 20px;
 background-color: #111111; border: 1px solid #2a2a2a; border-left: 3px solid #00ff88;
@@ -185,245 +179,41 @@ transform: translateY(120px); opacity: 0; transition: all 0.3s ease; z-index: 10
 }
 @media(min-width: 500px) { .toast { left: auto; width: 300px; } }
 .toast.show { transform: translateY(0); opacity: 1; }
-
-/* ── Rewritten title ── */
-.card-rewritten-title {
-font-family: ‘Bebas Neue’, sans-serif;
-font-size: 1.25rem;
-letter-spacing: 1px;
-line-height: 1.1;
-color: #ff3c00;
-margin-top: -4px;
-}
-.card-rewritten-title::before {
-content: ’↳ ’;
-font-family: ‘Space Mono’, monospace;
-font-size: 0.65rem;
-color: #444444;
-vertical-align: middle;
-}
-
-/* ── Excerpt ── */
-.card-excerpt {
-font-size: 0.82rem;
-line-height: 1.6;
-color: #aaaaaa;
-font-style: italic;
-border-left: 2px solid #ff3c00;
-padding-left: 12px;
-margin-bottom: 4px;
-}
-.excerpt-label {
-font-family: ‘Space Mono’, monospace;
-font-size: 0.5rem;
-letter-spacing: 3px;
-text-transform: uppercase;
-color: #ff3c00;
-display: block;
-margin-bottom: 5px;
-}
-
-/* ── Styled rewrite body ── */
-.rewrite-body { font-size: 0.9rem; line-height: 1.8; color: #f0ece4; }
-.rewrite-body p { margin-bottom: 14px; }
-.rewrite-body p:last-child { margin-bottom: 0; }
-.rewrite-body blockquote {
-border-left: 3px solid #ffd600;
-margin: 18px 0;
-padding: 10px 16px;
-background-color: #111111;
-font-style: italic;
-color: #ffd600;
-font-size: 0.95rem;
-line-height: 1.7;
-}
-.rewrite-body blockquote cite {
-display: block;
-margin-top: 6px;
-font-style: normal;
-font-family: ‘Space Mono’, monospace;
-font-size: 0.58rem;
-letter-spacing: 1px;
-color: #666666;
-text-transform: uppercase;
-}
-.rewrite-body .drop-cap::first-letter {
-font-family: ‘Bebas Neue’, sans-serif;
-font-size: 3.2rem;
-line-height: 0.8;
-float: left;
-margin-right: 8px;
-margin-top: 4px;
-color: #ff3c00;
-}
-
-/* ── WordPress panel ── */
-.wp-panel {
-background-color: #111111;
-border: 1px solid #2a2a2a;
-border-top: 2px solid #ff3c00;
-border-radius: 2px;
-padding: 16px 20px;
-margin-bottom: 16px;
-display: none;
-}
-.wp-panel.open { display: block; }
-.wp-panel-header {
-display: flex;
-align-items: center;
-justify-content: space-between;
-margin-bottom: 14px;
-}
-.wp-panel-title {
-font-family: ‘Bebas Neue’, sans-serif;
-font-size: 1.1rem;
-letter-spacing: 3px;
-color: #f0ece4;
-}
-.wp-fields {
-display: grid;
-grid-template-columns: 1fr 1fr 1fr;
-gap: 10px;
-}
-@media(max-width: 700px) { .wp-fields { grid-template-columns: 1fr; } }
-.wp-field label {
-display: block;
-font-family: ‘Space Mono’, monospace;
-font-size: 0.55rem;
-color: #666666;
-letter-spacing: 2px;
-text-transform: uppercase;
-margin-bottom: 5px;
-}
-.wp-field input {
-width: 100%;
-background-color: #0a0a0a;
-border: 1px solid #2a2a2a;
-border-radius: 2px;
-padding: 7px 10px;
-color: #f0ece4;
-font-family: ‘Space Mono’, monospace;
-font-size: 0.7rem;
-outline: none;
-transition: border-color 0.15s;
-}
-.wp-field input:focus { border-color: #ff3c00; }
-.wp-field input::placeholder { color: #333333; }
-.wp-note {
-font-family: ‘Space Mono’, monospace;
-font-size: 0.58rem;
-color: #444444;
-letter-spacing: 1px;
-margin-top: 10px;
-}
-.wp-note a { color: #666666; }
-.btn-sm.wp-push { border-color: #3a86ff; color: #3a86ff; }
-.btn-sm.wp-push:hover { background-color: #3a86ff; color: #ffffff; }
-.btn-sm.wp-push:disabled { border-color: #2a2a2a; color: #333333; cursor: not-allowed; }
-.btn-wp-toggle {
-font-family: ‘Space Mono’, monospace;
-font-size: 0.6rem;
-letter-spacing: 1px;
-padding: 6px 14px;
-border: 1px solid #3a86ff;
-border-radius: 2px;
-cursor: pointer;
-background: none;
-color: #3a86ff;
-text-transform: uppercase;
-transition: all 0.15s;
-white-space: nowrap;
-}
-.btn-wp-toggle:hover { background-color: #3a86ff; color: #ffffff; }
 </style>
 
 </head>
 <body>
 
 <header>
-  <div class="logo">RE<span>WRITE</span></div>
-  <div class="api-key-wrap">
-    <label>OpenAI Key</label>
-    <input type="password" id="apiKey" placeholder="sk-..." autocomplete="off">
-  </div>
+  <div class="logo">FEED<span>.</span></div>
+  <span class="logo-sub">Hip Hop News Scraper</span>
 </header>
 
 <div class="ticker">
-  <span class="ticker-inner">★ REWRITE — AI-POWERED HIP HOP NEWS ★ LATEST STORIES FROM ACROSS THE CULTURE ★ POWERED BY OPENAI ★ REWRITE — AI-POWERED HIP HOP NEWS ★ LATEST STORIES FROM ACROSS THE CULTURE ★ POWERED BY OPENAI ★</span>
+  <span class="ticker-inner">★ FEED — HIP HOP NEWS SCRAPER ★ 48H FRESH ONLY ★ COPY FOR GPT ★ FEED — HIP HOP NEWS SCRAPER ★ 48H FRESH ONLY ★ COPY FOR GPT ★ FEED — HIP HOP NEWS SCRAPER ★</span>
 </div>
 
 <div class="container">
   <div class="controls">
     <div class="source-chips" id="sourceChips">
-      <!-- RSS sources (solid border) -->
-      <button class="chip active"        data-type="rss"     data-name="AllHipHop"    data-url="https://allhiphop.com/feed">AllHipHop</button>
-      <button class="chip active"        data-type="rss"     data-name="The Source"   data-url="https://thesource.com/feed">The Source</button>
-      <button class="chip active"        data-type="rss"     data-name="Complex"      data-url="https://www.complex.com/music/rss">Complex</button>
-      <button class="chip"               data-type="rss"     data-name="TMZ HipHop"   data-url="https://www.tmz.com/category/hip-hop/rss.xml">TMZ HipHop</button>
-      <button class="chip"               data-type="rss"     data-name="XXL"          data-url="https://xxlmag.com/feed">XXL</button>
-      <button class="chip"               data-type="rss"     data-name="Pitchfork"    data-url="https://pitchfork.com/feed/feed-news/rss">Pitchfork</button>
-      <!-- Scraped sources (dashed border) -->
-      <button class="chip scrape active" data-type="scrape"  data-name="HipHopDX"    data-url="https://hiphopdx.com/news/" data-selector="article a[href*='/news/'], .article-title a, h2 a, h3 a">HipHopDX</button>
-      <button class="chip scrape active" data-type="scrape"  data-name="HotNewHipHop" data-url="https://www.hotnewhiphop.com/articles/news" data-selector="article a, .news-list a, h2 a, h3 a, a[href*='/news/']">HotNewHipHop</button>
-      <button class="chip scrape active" data-type="scrape"  data-name="Exclaim"      data-url="https://exclaim.ca/music/news" data-selector="article a, .article-title a, h2 a, h3 a, a[href*='/music/article/']">Exclaim</button>
+      <button class="chip active"        data-type="rss"    data-name="AllHipHop"    data-url="https://allhiphop.com/feed">AllHipHop</button>
+      <button class="chip active"        data-type="rss"    data-name="The Source"   data-url="https://thesource.com/feed">The Source</button>
+      <button class="chip active"        data-type="rss"    data-name="Complex"      data-url="https://www.complex.com/music/rss">Complex</button>
+      <button class="chip"               data-type="rss"    data-name="TMZ HipHop"   data-url="https://www.tmz.com/category/hip-hop/rss.xml">TMZ HipHop</button>
+      <button class="chip"               data-type="rss"    data-name="XXL"          data-url="https://xxlmag.com/feed">XXL</button>
+      <button class="chip"               data-type="rss"    data-name="Pitchfork"    data-url="https://pitchfork.com/feed/feed-news/rss">Pitchfork</button>
+      <button class="chip scrape active" data-type="scrape" data-name="HipHopDX"     data-url="https://hiphopdx.com/news/" data-selector="article a, .article-title a, h2 a, h3 a">HipHopDX</button>
+      <button class="chip scrape active" data-type="scrape" data-name="HotNewHipHop" data-url="https://www.hotnewhiphop.com/articles/news" data-selector="article a, .news-list a, h2 a, h3 a, a[href*='/news/']">HotNewHipHop</button>
+      <button class="chip scrape active" data-type="scrape" data-name="Exclaim"      data-url="https://exclaim.ca/music/news" data-selector="article a, .article-title a, h2 a, h3 a, a[href*='/music/article/']">Exclaim</button>
     </div>
-    <div class="chip-legend">
-      <span>- - -</span> = web-scraped source &nbsp;|&nbsp; solid border = RSS feed
+    <div class="controls-row">
+      <button class="btn btn-primary" id="fetchBtn">FETCH STORIES</button>
+      <span class="badge">&#9679; 48H FRESH ONLY</span>
     </div>
-
-```
-<div class="controls-row">
-
-  <button class="btn btn-primary" id="fetchBtn">FETCH STORIES</button>
-  <span style="font-family:'Space Mono',monospace;font-size:0.58rem;color:#00ff88;letter-spacing:1px;border:1px solid #00ff88;padding:6px 10px;border-radius:2px;white-space:nowrap;">&#9679; 48H FRESH ONLY</span>
-  <button class="btn-wp-toggle" id="wpToggle" onclick="toggleWP()">&#9654; WORDPRESS</button>
-</div>
-```
-
   </div>
 
   <div class="debug-log" id="debugLog"></div>
-
-  <!-- WordPress Panel -->
-
-  <div class="wp-panel" id="wpPanel">
-    <div class="wp-panel-header">
-      <span class="wp-panel-title">WordPress Integration</span>
-      <span style="font-family:'Space Mono',monospace;font-size:0.6rem;color:#444444;letter-spacing:1px;">Pushes as DRAFT — you review before publishing</span>
-    </div>
-    <div class="wp-fields">
-      <div class="wp-field">
-        <label>Site URL</label>
-        <input type="text" id="wpUrl" placeholder="https://yoursite.com" autocomplete="off">
-      </div>
-      <div class="wp-field">
-        <label>Username</label>
-        <input type="text" id="wpUser" placeholder="admin" autocomplete="off">
-      </div>
-      <div class="wp-field">
-        <label>Application Password</label>
-        <input type="password" id="wpPass" placeholder="xxxx xxxx xxxx xxxx" autocomplete="off">
-      </div>
-    </div>
-    <div style="display:flex;align-items:center;gap:12px;margin-top:12px;flex-wrap:wrap;">
-      <button class="btn-sm wp-push" onclick="testWPConnection()" id="wpTestBtn">TEST CONNECTION</button>
-      <span id="wpStatus" style="font-family:'Space Mono',monospace;font-size:0.62rem;letter-spacing:1px;color:#444444;"></span>
-    </div>
-    <p class="wp-note" style="margin-top:10px;">
-      Requires WordPress REST API enabled (default on all standard installs).<br>
-      Use an <a href="https://make.wordpress.org/core/2020/11/05/application-passwords-integration-guide/" target="_blank" style="color:#888;">Application Password</a>
-      — generate one under <strong style="color:#888;">Users → Profile → Application Passwords</strong>.<br>
-      If you get 405: make sure <strong style="color:#888;">Settings → Permalinks</strong> is NOT set to "Plain".
-    </p>
-  </div>
-
-  <div id="rewriteBar" class="rewrite-bar" style="display:none">
-    <div>
-      <p id="rewriteBarText">0 of 0 stories rewritten</p>
-      <div class="progress-bar-wrap"><div class="progress-bar-fill" id="progressFill"></div></div>
-    </div>
-    <button class="btn btn-primary" id="rewriteAllBtn">REWRITE ALL</button>
-  </div>
+  <div class="story-count" id="storyCount" style="display:none">Showing <span id="countNum">0</span> stories from the last 48 hours</div>
 
   <div class="stories-grid" id="storiesGrid">
     <div class="status-msg">
@@ -436,10 +226,9 @@ white-space: nowrap;
 <div class="toast" id="toast"></div>
 
 <script>
-let stories = [];
+var stories = [];
 
-// Three CORS proxies to try in sequence
-const PROXIES = [
+var PROXIES = [
   function(url) { return 'https://corsproxy.io/?' + encodeURIComponent(url); },
   function(url) { return 'https://api.allorigins.win/get?url=' + encodeURIComponent(url); },
   function(url) { return 'https://api.codetabs.com/v1/proxy?quest=' + encodeURIComponent(url); }
@@ -466,7 +255,6 @@ async function fetchRaw(url) {
       var res = await fetch(PROXIES[i](url), { signal: AbortSignal.timeout(10000) });
       if (!res.ok) throw new Error('HTTP ' + res.status);
       var text = await res.text();
-      // allorigins wraps in JSON
       try { var j = JSON.parse(text); if (j.contents) return j.contents; } catch(e) {}
       return text;
     } catch(e) {
@@ -476,20 +264,19 @@ async function fetchRaw(url) {
   throw new Error('All proxies exhausted');
 }
 
-// ─── 48-hour freshness filter ─────────────────────────────────────────────────
 var MAX_AGE_MS = 48 * 60 * 60 * 1000;
 
 function isWithin48Hours(pubDateStr) {
-  if (!pubDateStr) return null; // unknown date — include with warning
+  if (!pubDateStr) return null;
   var d = new Date(pubDateStr);
   if (isNaN(d.getTime())) return null;
   return (Date.now() - d.getTime()) <= MAX_AGE_MS;
 }
 
 function ageLabel(pubDateStr) {
-  if (!pubDateStr) return 'date unknown';
+  if (!pubDateStr) return null;
   var d = new Date(pubDateStr);
-  if (isNaN(d.getTime())) return '';
+  if (isNaN(d.getTime())) return null;
   var diffMs = Date.now() - d.getTime();
   var diffH = Math.floor(diffMs / 3600000);
   var diffM = Math.floor(diffMs / 60000);
@@ -498,35 +285,32 @@ function ageLabel(pubDateStr) {
   return Math.floor(diffH / 24) + 'd ' + (diffH % 24) + 'h ago';
 }
 
-// ─── RSS Parser ───────────────────────────────────────────────────────────────
 function parseRSS(xmlStr, sourceName) {
   var parser = new DOMParser();
   var xml = parser.parseFromString(xmlStr, 'text/xml');
   var results = [];
   var skipped = 0;
   xml.querySelectorAll('item').forEach(function(item, i) {
-    if (i >= 20) return; // scan more items since old ones get filtered
+    if (i >= 20) return;
     function g(tag) { return ((item.querySelector(tag) || {}).textContent || '').replace(/<!\[CDATA\[|\]\]>/g,'').trim(); }
-    var title = g('title') || 'Untitled';
-    var link  = g('link') || '#';
-    var desc  = g('description');
+    var title   = g('title') || 'Untitled';
+    var link    = g('link') || '#';
+    var desc    = g('description');
     var pubDate = g('pubDate');
     var content = g('content\\:encoded') || g('encoded') || '';
-    // 48-hour filter — dated-but-old items are dropped
     var fresh = isWithin48Hours(pubDate);
     if (fresh === false) { skipped++; return; }
     var div = document.createElement('div');
     div.innerHTML = content || desc;
-    var clean = (div.textContent || '').replace(/\s+/g,' ').trim().slice(0, 1200);
+    var clean = (div.textContent || '').replace(/\s+/g,' ').trim().slice(0, 2000);
     if (!title || title === 'Untitled') return;
     if (results.length >= 8) return;
-    results.push({ title: title, link: link, description: clean, pubDate: pubDate, source: sourceName, scraped: false, rewritten: null });
+    results.push({ title: title, link: link, body: clean, pubDate: pubDate, source: sourceName, scraped: false });
   });
-  if (skipped > 0) log(sourceName + ': dropped ' + skipped + ' stories older than 48h', 'warn');
+  if (skipped > 0) log(sourceName + ': dropped ' + skipped + ' older than 48h', 'warn');
   return results;
 }
 
-// ─── HTML Scraper ─────────────────────────────────────────────────────────────
 function scrapeHTML(htmlStr, sourceName, pageUrl, selectorStr) {
   var parser = new DOMParser();
   var doc = parser.parseFromString(htmlStr, 'text/html');
@@ -542,40 +326,33 @@ function scrapeHTML(htmlStr, sourceName, pageUrl, selectorStr) {
         if (!anchor) return;
         var href = anchor.getAttribute('href') || '';
         if (!href || href === '#' || href.startsWith('javascript')) return;
-        // Make absolute
         var absUrl = href.startsWith('http') ? href : new URL(href, base).href;
-        // Deduplicate
         if (seen[absUrl]) return;
-        // Must be same domain or a news article path
         var linkHost = new URL(absUrl).hostname;
         if (linkHost !== base.hostname) return;
-        // Skip nav/social/tag links (too short or contain certain keywords)
         var text = (anchor.textContent || '').replace(/\s+/g,' ').trim();
         if (text.length < 20 || text.length > 300) return;
-        if (/^(home|news|music|videos?|photos?|about|contact|search|login|register|subscribe|tag|category|more|see all)/i.test(text)) return;
+        if (/^(home|news|music|videos?|photos?|about|contact|search|login|subscribe|tag|category|more|see all)/i.test(text)) return;
         seen[absUrl] = true;
-        // Try to get a description from nearby text
-        var parent = anchor.closest('article') || anchor.closest('.post') || anchor.closest('.item') || anchor.closest('li') || anchor.parentElement;
-        var descEl = parent ? parent.querySelector('p, .excerpt, .description, .summary, .teaser') : null;
+        var parent = anchor.closest('article') || anchor.closest('.post') || anchor.closest('li') || anchor.parentElement;
+        var descEl = parent ? parent.querySelector('p, .excerpt, .description, .summary') : null;
         var desc = descEl ? descEl.textContent.replace(/\s+/g,' ').trim().slice(0,800) : '';
-        results.push({ title: text, link: absUrl, description: desc, pubDate: '', source: sourceName, scraped: true, rewritten: null });
+        results.push({ title: text, link: absUrl, body: desc, pubDate: '', source: sourceName, scraped: true });
       } catch(e) {}
     });
   });
 
-  // Deduplicate by title similarity and cap at 8
   var final = [];
-  var titlesSeen = {};
+  var seen2 = {};
   results.forEach(function(r) {
     var key = r.title.slice(0,40).toLowerCase();
-    if (titlesSeen[key]) return;
-    titlesSeen[key] = true;
+    if (seen2[key]) return;
+    seen2[key] = true;
     final.push(r);
   });
   return final.slice(0, 8);
 }
 
-// ─── Fetch one source ─────────────────────────────────────────────────────────
 async function fetchSource(chip) {
   var type = chip.dataset.type;
   var name = chip.dataset.name;
@@ -584,12 +361,12 @@ async function fetchSource(chip) {
     var raw = await fetchRaw(url);
     if (type === 'rss') {
       var parsed = parseRSS(raw, name);
-      log(name + ': ' + parsed.length + ' stories via RSS', parsed.length ? 'ok' : 'warn');
+      log(name + ': ' + parsed.length + ' stories', parsed.length ? 'ok' : 'warn');
       return parsed;
     } else {
       var sel = chip.dataset.selector || 'article a, h2 a, h3 a';
       var scraped = scrapeHTML(raw, name, url, sel);
-      log(name + ': ' + scraped.length + ' stories via scrape', scraped.length ? 'ok' : 'warn');
+      log(name + ': ' + scraped.length + ' stories (scraped)', scraped.length ? 'ok' : 'warn');
       return scraped;
     }
   } catch(e) {
@@ -598,7 +375,6 @@ async function fetchSource(chip) {
   }
 }
 
-// ─── Fetch all ────────────────────────────────────────────────────────────────
 document.getElementById('fetchBtn').addEventListener('click', async function() {
   var active = Array.from(document.querySelectorAll('.chip.active'));
   if (!active.length) { showToast('Select at least one source!'); return; }
@@ -614,242 +390,122 @@ document.getElementById('fetchBtn').addEventListener('click', async function() {
     stories = stories.concat(found);
   }
 
-  // Shuffle
   stories.sort(function() { return Math.random() - 0.5; });
   btn.disabled = false; btn.textContent = 'FETCH STORIES';
 
   if (!stories.length) {
-    document.getElementById('storiesGrid').innerHTML = '<div class="status-msg"><span class="big-status">404</span>No stories found. Check the debug log — proxies or sites may be blocking.</div>';
+    document.getElementById('storiesGrid').innerHTML = '<div class="status-msg"><span class="big-status">404</span>No stories found. Check the log above.</div>';
+    document.getElementById('storyCount').style.display = 'none';
     return;
   }
 
+  document.getElementById('countNum').textContent = stories.length;
+  document.getElementById('storyCount').style.display = 'block';
   renderStories();
-  document.getElementById('rewriteBar').style.display = 'flex';
-  updateProgress();
 });
 
-// ─── Render ───────────────────────────────────────────────────────────────────
 function renderStories() {
   var grid = document.getElementById('storiesGrid');
   grid.innerHTML = '';
   stories.forEach(function(s, i) { grid.appendChild(createCard(s, i)); });
 }
 
-function wordCount(text) {
-  if (!text) return 0;
-  var div = document.createElement('div');
-  div.innerHTML = text;
-  return (div.textContent || '').trim().split(/\s+/).filter(Boolean).length;
+function buildCopyText(story) {
+  var lines = [];
+  lines.push('SOURCE: ' + story.source);
+  lines.push('URL: ' + story.link);
+  if (story.pubDate) lines.push('DATE: ' + new Date(story.pubDate).toLocaleString());
+  lines.push('');
+  lines.push('HEADLINE: ' + story.title);
+  lines.push('');
+  if (story.body) lines.push(story.body);
+  return lines.join('\n');
 }
 
 function createCard(story, idx) {
   var card = document.createElement('div');
   card.className = 'story-card';
   card.id = 'card-' + idx;
-  var dateStr = ageLabel(story.pubDate);
-  var isOld = isWithin48Hours(story.pubDate) === false;
-  var dateColor = !story.pubDate ? '#555555' : '#00ff88';
-  var tagClass = story.scraped ? 'source-tag scraped' : 'source-tag';
-  var wc = story.rewritten ? wordCount(story.rewritten) : 0;
-  var wcColor = wc >= 280 ? '#00ff88' : wc >= 200 ? '#ffd600' : '#ff3c00';
+
+  var age = ageLabel(story.pubDate);
+  var tagClass = 'source-tag' + (story.scraped ? ' scraped' : '');
+  var dateClass = age ? 'pub-date' : 'pub-date unknown';
+  var dateText = age || 'date unknown';
 
   card.innerHTML =
     '<div class="card-meta">' +
       '<span class="' + tagClass + '">' + story.source + '</span>' +
-      '<span class="pub-date" style="color:' + dateColor + '">' + dateStr + '</span>' +
+      '<span class="' + dateClass + '">' + dateText + '</span>' +
     '</div>' +
     '<div class="card-title">' + story.title + '</div>' +
-    (story.rewrittenTitle ? '<div class="card-rewritten-title">' + story.rewrittenTitle + '</div>' : '') +
-    (story.description ? '<div class="card-original">' + story.description.slice(0,280) + '...</div>' : '') +
-    (story.rewritten ?
-      '<div class="card-rewritten">' +
-        '<span class="rewrite-label">✦ AI Rewrite</span>' +
-        (story.excerpt ? '<div class="card-excerpt"><span class="excerpt-label">Excerpt</span>' + story.excerpt + '</div>' : '') +
-        '<div class="rewrite-body" id="rb-' + idx + '"></div>' +
-        '<div class="word-count" style="color:' + wcColor + '">' + wc + ' words</div>' +
-      '</div>' : '') +
+    (story.body ? '<div class="card-body">' + story.body.slice(0, 300) + '...</div>' : '') +
+    '<div class="copy-block" id="copyblock-' + idx + '">' +
+      '<div class="copy-text" id="copytext-' + idx + '"></div>' +
+      '<div class="copy-actions">' +
+        '<button class="btn-sm blue" onclick="doCopy(' + idx + ')">COPY TO CLIPBOARD</button>' +
+        '<span class="copy-confirm" id="copyconfirm-' + idx + '">✓ Copied!</span>' +
+      '</div>' +
+    '</div>' +
     '<div class="card-actions">' +
-      '<button class="btn-sm rewrite-btn" id="rbtn-' + idx + '" onclick="rewriteSingle(' + idx + ')">' +
-        (story.rewritten ? 'REWRITE AGAIN' : 'REWRITE') +
-      '</button>' +
-      (story.rewritten ? '<button class="btn-sm" onclick="copyText(' + idx + ')">COPY</button>' : '') +
-      (story.rewritten ? '<button class="btn-sm wp-push" id="wpbtn-' + idx + '" onclick="pushToWP(' + idx + ')">&#9654; WORDPRESS</button>' : '') +
+      '<button class="btn-sm primary" id="copybtn-' + idx + '" onclick="toggleCopyBlock(' + idx + ')">COPY FOR GPT</button>' +
       '<a class="original-link" href="' + story.link + '" target="_blank">&#8599; ORIGINAL</a>' +
     '</div>';
-  // Inject rewrite HTML safely (not via innerHTML concatenation)
-  if (story.rewritten) {
-    var rbEl = card.querySelector('#rb-' + idx);
-    if (rbEl) {
-      rbEl.innerHTML = story.rewritten;
-      // Add drop-cap class to first p
-      var firstP = rbEl.querySelector('p');
-      if (firstP) firstP.classList.add('drop-cap');
-    }
-  }
+
+  // Set copy text safely
+  var textEl = card.querySelector('#copytext-' + idx);
+  if (textEl) textEl.textContent = buildCopyText(story);
+
   return card;
 }
 
-function updateCard(idx) {
-  var el = document.getElementById('card-' + idx);
-  if (el) el.replaceWith(createCard(stories[idx], idx));
-}
+function toggleCopyBlock(idx) {
+  var block = document.getElementById('copyblock-' + idx);
+  var btn   = document.getElementById('copybtn-' + idx);
+  if (!block) return;
 
-// ─── Rewrite ──────────────────────────────────────────────────────────────────
-async function rewriteSingle(idx) {
-  var key = document.getElementById('apiKey').value.trim();
-  if (!key) { showToast('Add your OpenAI key!'); return; }
-  var btn = document.getElementById('rbtn-' + idx);
-  if (btn) { btn.disabled = true; btn.textContent = 'WRITING...'; }
-
-  // If story was scraped and has no description, try to fetch the article body
-  if (stories[idx].scraped && !stories[idx].description) {
-    log('Fetching article body for "' + stories[idx].title.slice(0,40) + '..."');
-    try {
-      var raw = await fetchRaw(stories[idx].link);
+  // If scraped and no body yet, try fetching article
+  if (stories[idx].scraped && !stories[idx].body) {
+    btn.textContent = 'LOADING...';
+    btn.disabled = true;
+    fetchRaw(stories[idx].link).then(function(raw) {
       var doc = new DOMParser().parseFromString(raw, 'text/html');
-      // Try common article body selectors
-      var bodyEl = doc.querySelector('article, .article-body, .post-content, .entry-content, main p');
+      var bodyEl = doc.querySelector('article, .article-body, .post-content, .entry-content, [class*="article"] p');
       if (bodyEl) {
-        stories[idx].description = bodyEl.textContent.replace(/\s+/g,' ').trim().slice(0,1500);
-        log('Article body fetched: ' + stories[idx].description.length + ' chars', 'ok');
+        stories[idx].body = bodyEl.textContent.replace(/\s+/g,' ').trim().slice(0, 2000);
+        var textEl = document.getElementById('copytext-' + idx);
+        if (textEl) textEl.textContent = buildCopyText(stories[idx]);
+        // Also update the preview
+        var cardBody = document.querySelector('#card-' + idx + ' .card-body');
+        if (cardBody) cardBody.textContent = stories[idx].body.slice(0, 300) + '...';
       }
-    } catch(e) {
-      log('Could not fetch article body: ' + e.message, 'warn');
-    }
+      btn.disabled = false;
+      btn.textContent = block.classList.contains('open') ? 'CLOSE' : 'COPY FOR GPT';
+      block.classList.toggle('open');
+      if (block.classList.contains('open')) btn.textContent = 'CLOSE';
+    }).catch(function() {
+      btn.disabled = false;
+      btn.textContent = 'COPY FOR GPT';
+      block.classList.toggle('open');
+      if (block.classList.contains('open')) btn.textContent = 'CLOSE';
+    });
+    return;
   }
 
-  try {
-    var result = await callOpenAI(key, stories[idx]);
-    stories[idx].rewritten = result.body;
-    stories[idx].excerpt = result.excerpt;
-    stories[idx].rewrittenTitle = result.title;
-    updateCard(idx); updateProgress(); showToast('Story rewritten ✓');
-  } catch(e) {
-    showToast('Error: ' + e.message);
-    if (btn) { btn.disabled = false; btn.textContent = 'REWRITE'; }
-  }
+  block.classList.toggle('open');
+  btn.textContent = block.classList.contains('open') ? 'CLOSE' : 'COPY FOR GPT';
 }
 
-// ─── OpenAI Call ──────────────────────────────────────────────────────────────
-async function callOpenAI(apiKey, story) {
-  
-  var systemPrompt = [
-    '════ WHO YOU ARE ════',
-    'You are a staff journalist at a music and culture publication. You have received a news brief about a hip hop story. Your job is to write an original news article for your outlet reporting the same verified facts.',
-    'Your editorial voice is that of a authoritative hip hop journalist.',
-    '',
-    '════ CORE MANDATE ════',
-    'You are NOT summarizing. You are NOT paraphrasing. You are NOT rearranging sentences.',
-    'You are independently reporting the same factual event — as if your newsroom gathered the facts itself.',
-    'If your rewrite reads like a softened or rearranged copy of the source, you risk professional embarrassment.',
-    'The finished piece must stand alone without knowledge of the original.',
-    '',
-    '════ OUTPUT FORMAT ════',
-    'Return a raw JSON object — no markdown fences, no preamble. Exactly three keys:',
-    '{ "title": "...", "excerpt": "...", "body": "..." }',
-    'title: Original headline. Specific, factual, no clickbait. Max 12 words. Must not mirror the source headline.',
-    'excerpt: One sharp sentence (max 30 words) capturing the core news. No quotation marks around it.',
-    'body: HTML using ONLY <p>, <blockquote>, <cite>, <em> tags.',
-    '  • Each paragraph = its own <p>. Target 3–4 paragraphs.',
-    '  • Direct quotes from the artist/subject = <blockquote><p>exact words</p><cite>— Name</cite></blockquote>',
-    '  • Album / mixtape / EP / project titles = <em>Title</em>. Never in quotation marks.',
-    '  • Song titles stay in quotation marks.',
-    '  • Target 280–320 words. No padding. No repetition.',
-    '',
-    '════ AP-STYLE REFRAME RULES ════',
-    '1. CHANGE THE ENTRY POINT: Do not open with the same angle as the source. Consider leading with cultural significance, historical context, or thematic framing — then deliver the news.',
-    '2. REORDER THE FACTS: The same facts must appear, but the paragraph sequence must differ from the source. Context may precede announcement. Background may come before logistics.',
-    '3. INDEPENDENT SENTENCE CONSTRUCTION: Every sentence is written from scratch. Do not copy sentence skeletons, rhythm, or word order from the source. Do not recycle its descriptors.',
-    '4. PRESERVE ALL NAMED DETAILS — THIS IS CRITICAL: Every brand, sponsor, date, timestamp, collaborator, featured artist, producer, label, chart position, venue, platform, and project name in the source must appear in your article. Dropping "Ray-Ban" from a Ray-Ban story or softening "steps into the vehicle" to "hops in" is a factual failure. Precision is non-negotiable.',
-    '5. STRICT FACTUAL FIDELITY: Do not invent facts. Do not speculate. Do not editorialize. Do not add context not present in the source unless the source is under 80 words — and even then only add facts you are 100% certain are documented.',
-    '6. ARTIST QUOTES VERBATIM: When the source contains a direct quote from the artist or subject, reproduce their exact words in a <blockquote>. Never paraphrase a direct quote. Never quote the journalist.',
-    '7. NO REPETITION: Make each point once. If you have already explained the grassroots/authentic angle, do not restate it. Do not use the artist name more than twice in any paragraph — switch to pronouns or a contextual descriptor ("the Harlem rapper", "the Detroit producer").',
-    '8. NO FLUFF: No analogies, metaphors, or descriptive flourishes not grounded in the source. Clean, declarative, authoritative.',
-    '9. FINAL SELF-CHECK before returning your JSON — ask yourself:',
-    '   • Does the structure feel independently constructed, or does it mirror the source?',
-    '   • Does the lead introduce a distinct angle?',
-    '   • Are all brands, names, dates, and specific details preserved?',
-    '   • Have I made every point once and only once?',
-    '   • Would this pass editorial scrutiny at a competing newsroom?',
-    '   If any answer suggests similarity or omission, rewrite before returning.'
-  ].join('\n');
-
-  var userPrompt = 'You are independently reporting the following story for your publication. Return ONLY raw JSON with keys "title", "excerpt", "body". Preserve every brand, name, date, timestamp, collaborator, and specific detail from the source brief. Do not mirror its structure. Do not drop any named fact. Apply your final self-check before responding.\n\nTitle: ' + story.title + '\n\nArticle content:\n' + (story.description || '(No body text available — expand from the title using only well-known documented facts about the artist or topic.)');
-
-  var res = await fetch('https://api.openai.com/v1/chat/completions', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + apiKey },
-    body: JSON.stringify({
-      model: 'gpt-4o',
-      max_tokens: 800,
-      temperature: 0.7,
-      messages: [
-        { role: 'system', content: systemPrompt },
-        { role: 'user', content: userPrompt }
-      ]
-    })
+function doCopy(idx) {
+  var textEl = document.getElementById('copytext-' + idx);
+  var confirm = document.getElementById('copyconfirm-' + idx);
+  if (!textEl) return;
+  navigator.clipboard.writeText(textEl.textContent).then(function() {
+    if (confirm) {
+      confirm.classList.add('show');
+      setTimeout(function() { confirm.classList.remove('show'); }, 2000);
+    }
+    showToast('Copied to clipboard!');
   });
-
-  if (!res.ok) {
-    var e = await res.json().catch(function() { return {}; });
-    throw new Error((e.error && e.error.message) || 'HTTP ' + res.status);
-  }
-  var data = await res.json();
-  var raw = data.choices[0].message.content.trim();
-  // Strip markdown code fences if model wraps it anyway
-  raw = raw.replace(/^```json\s*/i, '').replace(/^```\s*/i, '').replace(/\s*```$/,'').trim();
-  try {
-    var parsed = JSON.parse(raw);
-    return { title: (parsed.title || '').trim(), body: (parsed.body || '').trim(), excerpt: (parsed.excerpt || '').trim() };
-  } catch(e) {
-    // Fallback: if model ignored JSON instruction, treat whole thing as body
-    return { title: '', body: raw, excerpt: '' };
-  }
-}
-
-// ─── Rewrite All ──────────────────────────────────────────────────────────────
-document.getElementById('rewriteAllBtn').addEventListener('click', async function() {
-  var key = document.getElementById('apiKey').value.trim();
-  if (!key) { showToast('Add your OpenAI key!'); return; }
-  var btn = document.getElementById('rewriteAllBtn');
-  btn.disabled = true; btn.textContent = 'RUNNING...';
-  for (var i = 0; i < stories.length; i++) {
-    if (stories[i].rewritten) continue;
-    try {
-      // fetch body if scraped and empty
-      if (stories[i].scraped && !stories[i].description) {
-        try {
-          var raw = await fetchRaw(stories[i].link);
-          var doc = new DOMParser().parseFromString(raw, 'text/html');
-          var bodyEl = doc.querySelector('article, .article-body, .post-content, .entry-content, main p');
-          if (bodyEl) stories[i].description = bodyEl.textContent.replace(/\s+/g,' ').trim().slice(0,1500);
-        } catch(e) {}
-      }
-      var res2 = await callOpenAI(key, stories[i]);
-      stories[i].rewritten = res2.body;
-      stories[i].excerpt = res2.excerpt;
-      stories[i].rewrittenTitle = res2.title;
-      updateCard(i); updateProgress();
-      await new Promise(function(r) { setTimeout(r, 500); });
-    } catch(e) {
-      showToast('Stopped at story ' + (i+1) + ': ' + e.message);
-      break;
-    }
-  }
-  btn.disabled = false; btn.textContent = 'REWRITE ALL';
-  showToast('All done! ✦');
-});
-
-function updateProgress() {
-  var done = stories.filter(function(s) { return s.rewritten; }).length;
-  var total = stories.length;
-  document.getElementById('rewriteBarText').textContent = done + ' of ' + total + ' stories rewritten';
-  document.getElementById('progressFill').style.width = total ? ((done/total)*100) + '%' : '0%';
-}
-
-function copyText(idx) {
-  var s = stories[idx];
-  navigator.clipboard.writeText(s.title + '\n\n' + s.rewritten + '\n\nSource: ' + s.link).then(function() { showToast('Copied!'); });
 }
 
 var toastTimeout;
@@ -857,153 +513,7 @@ function showToast(msg) {
   var t = document.getElementById('toast');
   t.textContent = msg; t.classList.add('show');
   clearTimeout(toastTimeout);
-  toastTimeout = setTimeout(function() { t.classList.remove('show'); }, 3500);
-}
-
-// ─── WordPress ────────────────────────────────────────────────────────────────
-function toggleWP() {
-  var panel = document.getElementById('wpPanel');
-  panel.classList.toggle('open');
-  var btn = document.getElementById('wpToggle');
-  btn.textContent = panel.classList.contains('open') ? '▼ WORDPRESS' : '▶ WORDPRESS';
-}
-
-function getWPConfig() {
-  var raw = (document.getElementById('wpUrl').value || '').trim();
-  // Strip trailing slash, force https if no protocol given
-  if (raw && !raw.match(/^https?:\/\//)) raw = 'https://' + raw;
-  raw = raw.replace(/\/+$/, '');
-  return {
-    siteUrl: raw,
-    user: (document.getElementById('wpUser').value || '').trim(),
-    pass: (document.getElementById('wpPass').value || '').trim()
-  };
-}
-
-function setWPStatus(msg, color) {
-  var el = document.getElementById('wpStatus');
-  if (el) { el.textContent = msg; el.style.color = color || '#666666'; }
-}
-
-async function testWPConnection() {
-  var cfg = getWPConfig();
-  if (!cfg.siteUrl || !cfg.user || !cfg.pass) {
-    setWPStatus('Fill in all three fields first.', '#ff3c00'); return;
-  }
-  var btn = document.getElementById('wpTestBtn');
-  btn.disabled = true; btn.textContent = 'TESTING...';
-  setWPStatus('Connecting...', '#ffd600');
-
-  try {
-    // Step 1 — check the REST API root is reachable
-    var rootRes = await fetch(cfg.siteUrl + '/wp-json/', {
-      method: 'GET',
-      headers: { 'Accept': 'application/json' }
-    });
-    if (!rootRes.ok) throw new Error('REST API root returned HTTP ' + rootRes.status + '. Check your site URL and that pretty permalinks are enabled (Settings → Permalinks).');
-    var rootData = await rootRes.json();
-    if (!rootData.routes || !rootData.routes['/wp/v2/posts']) {
-      throw new Error('Posts endpoint not found in REST API. Your site may have REST API disabled by a plugin.');
-    }
-
-    // Step 2 — verify credentials with a GET on /users/me
-    var credentials = btoa(cfg.user + ':' + cfg.pass);
-    var authRes = await fetch(cfg.siteUrl + '/wp-json/wp/v2/users/me', {
-      method: 'GET',
-      headers: {
-        'Authorization': 'Basic ' + credentials,
-        'Accept': 'application/json'
-      }
-    });
-    if (authRes.status === 401) throw new Error('Authentication failed. Check username and Application Password.');
-    if (authRes.status === 403) throw new Error('User does not have permission to create posts.');
-    if (!authRes.ok) throw new Error('Auth check failed with HTTP ' + authRes.status);
-    var userData = await authRes.json();
-
-    setWPStatus('✓ Connected as "' + (userData.name || cfg.user) + '" — ready to push drafts', '#00ff88');
-    log('WordPress connected: ' + cfg.siteUrl + ' as ' + (userData.name || cfg.user), 'ok');
-  } catch(e) {
-    setWPStatus('✗ ' + e.message, '#ff3c00');
-    log('WordPress test failed: ' + e.message, 'err');
-  }
-
-  btn.disabled = false; btn.textContent = 'TEST CONNECTION';
-}
-
-function buildExcerpt(story) {
-  // Use AI-generated excerpt if available, otherwise fall back to first paragraph
-  if (story.excerpt) return story.excerpt;
-  var div = document.createElement('div');
-  div.innerHTML = story.rewritten || '';
-  var firstP = div.querySelector('p');
-  return firstP ? firstP.textContent.trim().slice(0, 280) : (div.textContent || '').trim().slice(0, 280);
-}
-
-function buildWPContent(story) {
-  return story.rewritten +
-    '\n\n<p><em>Source: <a href="' + story.link + '" target="_blank">' + story.source + '</a></em></p>';
-}
-
-async function pushToWP(idx) {
-  var cfg = getWPConfig();
-  if (!cfg.siteUrl || !cfg.user || !cfg.pass) {
-    document.getElementById('wpPanel').classList.add('open');
-    document.getElementById('wpToggle').textContent = '▼ WORDPRESS';
-    showToast('Fill in your WordPress details first!');
-    return;
-  }
-
-  var story = stories[idx];
-  if (!story.rewritten) { showToast('Rewrite the story first!'); return; }
-
-  var btn = document.getElementById('wpbtn-' + idx);
-  if (btn) { btn.disabled = true; btn.textContent = 'PUSHING...'; }
-
-  try {
-    var credentials = btoa(cfg.user + ':' + cfg.pass);
-    var endpoint = cfg.siteUrl + '/wp-json/wp/v2/posts';
-
-    var postData = {
-      title:   { raw: story.rewrittenTitle || story.title },
-      content: { raw: buildWPContent(story) },
-      excerpt: { raw: buildExcerpt(story) },
-      status:  'draft'
-    };
-
-    var res = await fetch(endpoint, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Basic ' + credentials
-      },
-      body: JSON.stringify(postData)
-    });
-
-    if (res.status === 405) {
-      throw new Error('405 Method Not Allowed — check that Settings → Permalinks is not set to "Plain", and that no security plugin is blocking the REST API.');
-    }
-    if (!res.ok) {
-      var err = await res.json().catch(function() { return {}; });
-      throw new Error(err.message || 'HTTP ' + res.status);
-    }
-
-    var result = await res.json();
-    var editUrl = cfg.siteUrl + '/wp-admin/post.php?post=' + result.id + '&action=edit';
-    showToast('Draft saved! Post #' + result.id);
-    if (btn) {
-      btn.disabled = false;
-      btn.textContent = '✓ DRAFT #' + result.id;
-      btn.style.borderColor = '#00ff88';
-      btn.style.color = '#00ff88';
-      btn.onclick = function() { window.open(editUrl, '_blank'); };
-      btn.title = 'Click to open draft in WP admin';
-    }
-    log('WP draft #' + result.id + ': "' + story.title.slice(0,50) + '" → ' + editUrl, 'ok');
-  } catch(e) {
-    showToast('WP Error: ' + e.message);
-    log('WP push failed: ' + e.message, 'err');
-    if (btn) { btn.disabled = false; btn.textContent = '▶ WORDPRESS'; }
-  }
+  toastTimeout = setTimeout(function() { t.classList.remove('show'); }, 3000);
 }
 </script>
 
