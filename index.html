@@ -770,10 +770,11 @@ async function callOpenAI(apiKey, story) {
     '2. EVERY NAMED DETAIL SURVIVES: Every brand, sponsor, company, venue, label, collaborator, featured artist, producer, chart position, sales figure, date, city, and project name in the source must appear in your rewrite. Dropping "Ray-Ban" from a Ray-Ban story, or "Mick Boogie" from a tape he hosted, is a critical failure.',
     '3. SOURCE IS THE CEILING: Do not add facts, context, or details that are not in the source article. No expanding with outside knowledge unless the source is fewer than 80 words — and even then, only add facts you are 100% certain of.',
     '4. NO BORROWED PHRASING: Rewrite every sentence from scratch. Do not reproduce the original sentence structure, word order, or phrasing. The ideas stay; the sentences are new.',
+    '   PRECISION IS NON-NEGOTIABLE: When the source uses specific language — a timestamp (2:50), an ordinal (fifth installment), a physical action (steps into the vehicle) — your rewrite must match that precision. Do not soften "steps into" to "hops in", do not drop "fifth" from "fifth installment", do not replace a specific action with a vague one. Specific words in the source are specific for a reason.',
     '5. ARTIST QUOTES VERBATIM: If the source contains a direct quote from the artist or subject, use their exact words in a <blockquote>. Do not paraphrase them. Do not quote the journalist.',
     '6. NO ANALOGIES, NO INVENTED COLOUR: Do not add comparisons, jokes, metaphors, or descriptive flourishes that are not in the source.',
     '7. PARAGRAPHS NOT BULLETS: Flowing prose only. 3–4 paragraphs. No headers.',
-    '8. LENGTH: 280–320 words in the body. Hit the target — do not pad with vague filler.',
+    '8. LENGTH: 280–320 words in the body. Hit the target — do not pad with vague filler. If you find yourself repeating a point already made (e.g. the grassroots/authentic connection point), stop and expand with a fact from the source instead.',
     '9. OPENING: First word of body is the story. Never start with "Here is", "In a", "Recently", or any wind-up.',
     '10. AVOID REPETITION: Do not use an artist\'s name more than twice in any single paragraph. After the first full name introduction, use pronouns (he/she/they) or a natural reference ("the Harlem rapper", "the producer"). Never repeat the same phrase, descriptor, or sentence construction within the same paragraph. Vary your sentence openings.',
     '11. VOICE: Apply the ' + style + ' voice to tone and word choice only — never at the expense of factual accuracy.'
