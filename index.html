@@ -236,6 +236,7 @@ transform: translateY(120px); opacity: 0; transition: all 0.3s ease; z-index: 10
     <option value="neutral journalist">Neutral Journalist</option>
   </select>
   <button class="btn btn-primary" id="fetchBtn">FETCH STORIES</button>
+  <span style="font-family:'Space Mono',monospace;font-size:0.58rem;color:#00ff88;letter-spacing:1px;border:1px solid #00ff88;padding:6px 10px;border-radius:2px;white-space:nowrap;">&#9679; 48H FRESH ONLY</span>
 </div>
 ```
 
@@ -302,26 +303,53 @@ async function fetchRaw(url) {
   throw new Error('All proxies exhausted');
 }
 
+// ─── 48-hour freshness filter ─────────────────────────────────────────────────
+var MAX_AGE_MS = 48 * 60 * 60 * 1000;
+
+function isWithin48Hours(pubDateStr) {
+  if (!pubDateStr) return null; // unknown date — include with warning
+  var d = new Date(pubDateStr);
+  if (isNaN(d.getTime())) return null;
+  return (Date.now() - d.getTime()) <= MAX_AGE_MS;
+}
+
+function ageLabel(pubDateStr) {
+  if (!pubDateStr) return 'date unknown';
+  var d = new Date(pubDateStr);
+  if (isNaN(d.getTime())) return '';
+  var diffMs = Date.now() - d.getTime();
+  var diffH = Math.floor(diffMs / 3600000);
+  var diffM = Math.floor(diffMs / 60000);
+  if (diffM < 60) return diffM + 'm ago';
+  if (diffH < 24) return diffH + 'h ago';
+  return Math.floor(diffH / 24) + 'd ' + (diffH % 24) + 'h ago';
+}
+
 // ─── RSS Parser ───────────────────────────────────────────────────────────────
 function parseRSS(xmlStr, sourceName) {
   var parser = new DOMParser();
   var xml = parser.parseFromString(xmlStr, 'text/xml');
   var results = [];
+  var skipped = 0;
   xml.querySelectorAll('item').forEach(function(item, i) {
-    if (i >= 8) return;
+    if (i >= 20) return; // scan more items since old ones get filtered
     function g(tag) { return ((item.querySelector(tag) || {}).textContent || '').replace(/<!\[CDATA\[|\]\]>/g,'').trim(); }
     var title = g('title') || 'Untitled';
     var link  = g('link') || '#';
     var desc  = g('description');
     var pubDate = g('pubDate');
-    // Also try content:encoded for more text
     var content = g('content\\:encoded') || g('encoded') || '';
+    // 48-hour filter — dated-but-old items are dropped
+    var fresh = isWithin48Hours(pubDate);
+    if (fresh === false) { skipped++; return; }
     var div = document.createElement('div');
     div.innerHTML = content || desc;
     var clean = (div.textContent || '').replace(/\s+/g,' ').trim().slice(0, 1200);
     if (!title || title === 'Untitled') return;
+    if (results.length >= 8) return;
     results.push({ title: title, link: link, description: clean, pubDate: pubDate, source: sourceName, scraped: false, rewritten: null });
   });
+  if (skipped > 0) log(sourceName + ': dropped ' + skipped + ' stories older than 48h', 'warn');
   return results;
 }
 
@@ -442,7 +470,9 @@ function createCard(story, idx) {
   var card = document.createElement('div');
   card.className = 'story-card';
   card.id = 'card-' + idx;
-  var dateStr = story.pubDate ? new Date(story.pubDate).toLocaleDateString('en-US', { month:'short', day:'numeric' }) : '';
+  var dateStr = ageLabel(story.pubDate);
+  var isOld = isWithin48Hours(story.pubDate) === false;
+  var dateColor = !story.pubDate ? '#555555' : '#00ff88';
   var tagClass = story.scraped ? 'source-tag scraped' : 'source-tag';
   var wc = story.rewritten ? wordCount(story.rewritten) : 0;
   var wcColor = wc >= 280 ? '#00ff88' : wc >= 200 ? '#ffd600' : '#ff3c00';
@@ -450,7 +480,7 @@ function createCard(story, idx) {
   card.innerHTML =
     '<div class="card-meta">' +
       '<span class="' + tagClass + '">' + story.source + '</span>' +
-      '<span class="pub-date">' + dateStr + '</span>' +
+      '<span class="pub-date" style="color:' + dateColor + '">' + dateStr + '</span>' +
     '</div>' +
     '<div class="card-title">' + story.title + '</div>' +
     (story.description ? '<div class="card-original">' + story.description.slice(0,280) + '...</div>' : '') +
