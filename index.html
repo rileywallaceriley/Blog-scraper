@@ -1,1 +1,697 @@
+<!DOCTYPE html>
 
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>REWRITE — Hip Hop News</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Space+Mono:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0a;
+    --surface: #111111;
+    --surface2: #1a1a1a;
+    --border: #2a2a2a;
+    --accent: #ff3c00;
+    --accent2: #ffd600;
+    --text: #f0ece4;
+    --muted: #666;
+    --green: #00ff88;
+  }
+
+- { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+background: var(–bg);
+color: var(–text);
+font-family: ‘DM Sans’, sans-serif;
+min-height: 100vh;
+overflow-x: hidden;
+}
+
+body::before {
+content: ‘’;
+position: fixed;
+inset: 0;
+background-image: url(“data:image/svg+xml,%3Csvg viewBox=‘0 0 256 256’ xmlns=‘http://www.w3.org/2000/svg’%3E%3Cfilter id=‘noise’%3E%3CfeTurbulence type=‘fractalNoise’ baseFrequency=‘0.9’ numOctaves=‘4’ stitchTiles=‘stitch’/%3E%3C/filter%3E%3Crect width=‘100%25’ height=‘100%25’ filter=‘url(%23noise)’ opacity=‘0.04’/%3E%3C/svg%3E”);
+pointer-events: none;
+z-index: 9999;
+opacity: 0.4;
+}
+
+header {
+border-bottom: 1px solid var(–border);
+padding: 0 40px;
+display: flex;
+align-items: center;
+justify-content: space-between;
+height: 70px;
+position: sticky;
+top: 0;
+background: rgba(10,10,10,0.95);
+backdrop-filter: blur(10px);
+z-index: 100;
+}
+
+.logo {
+font-family: ‘Bebas Neue’, sans-serif;
+font-size: 2rem;
+letter-spacing: 4px;
+color: var(–text);
+line-height: 1;
+}
+.logo span { color: var(–accent); }
+
+.header-right { display: flex; align-items: center; gap: 16px; }
+
+.api-key-wrap {
+display: flex;
+align-items: center;
+gap: 10px;
+background: var(–surface);
+border: 1px solid var(–border);
+border-radius: 4px;
+padding: 6px 12px;
+}
+
+.api-key-wrap label {
+font-family: ‘Space Mono’, monospace;
+font-size: 0.6rem;
+color: var(–muted);
+text-transform: uppercase;
+letter-spacing: 2px;
+white-space: nowrap;
+}
+
+.api-key-wrap input {
+background: none;
+border: none;
+outline: none;
+color: var(–green);
+font-family: ‘Space Mono’, monospace;
+font-size: 0.75rem;
+width: 220px;
+}
+.api-key-wrap input::placeholder { color: #333; }
+
+.ticker {
+background: var(–accent);
+padding: 6px 0;
+overflow: hidden;
+white-space: nowrap;
+}
+.ticker-inner {
+display: inline-block;
+animation: ticker 40s linear infinite;
+font-family: ‘Space Mono’, monospace;
+font-size: 0.7rem;
+letter-spacing: 3px;
+color: #000;
+font-weight: 700;
+}
+@keyframes ticker {
+from { transform: translateX(100vw); }
+to { transform: translateX(-100%); }
+}
+
+.container { max-width: 1400px; margin: 0 auto; padding: 40px; }
+
+.controls {
+display: flex;
+align-items: center;
+gap: 16px;
+margin-bottom: 20px;
+flex-wrap: wrap;
+}
+
+.source-chips { display: flex; gap: 8px; flex-wrap: wrap; flex: 1; }
+
+.chip {
+font-family: ‘Space Mono’, monospace;
+font-size: 0.65rem;
+letter-spacing: 1px;
+padding: 6px 14px;
+border: 1px solid var(–border);
+border-radius: 2px;
+cursor: pointer;
+transition: all 0.15s;
+background: none;
+color: var(–muted);
+text-transform: uppercase;
+}
+.chip.active { border-color: var(–accent); color: var(–accent); background: rgba(255,60,0,0.08); }
+.chip:hover { border-color: var(–text); color: var(–text); }
+
+.btn {
+font-family: ‘Bebas Neue’, sans-serif;
+letter-spacing: 3px;
+font-size: 1rem;
+padding: 10px 28px;
+cursor: pointer;
+border: none;
+border-radius: 2px;
+transition: all 0.15s;
+}
+.btn-primary { background: var(–accent); color: #fff; }
+.btn-primary:hover { background: #ff5500; transform: translateY(-1px); }
+.btn-primary:active { transform: translateY(0); }
+.btn-primary:disabled { background: #333; color: #555; cursor: not-allowed; transform: none; }
+
+.style-select {
+font-family: ‘Space Mono’, monospace;
+font-size: 0.7rem;
+background: var(–surface);
+border: 1px solid var(–border);
+color: var(–text);
+padding: 8px 14px;
+border-radius: 2px;
+cursor: pointer;
+letter-spacing: 1px;
+}
+
+/* Debug log */
+.debug-log {
+background: var(–surface);
+border: 1px solid var(–border);
+border-radius: 2px;
+padding: 12px 16px;
+margin-bottom: 20px;
+font-family: ‘Space Mono’, monospace;
+font-size: 0.65rem;
+color: var(–muted);
+letter-spacing: 1px;
+max-height: 80px;
+overflow-y: auto;
+display: none;
+}
+.debug-log.visible { display: block; }
+.debug-log p { line-height: 1.8; }
+.debug-log p.ok { color: var(–green); }
+.debug-log p.err { color: var(–accent); }
+
+.stories-grid {
+display: grid;
+grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+gap: 1px;
+background: var(–border);
+border: 1px solid var(–border);
+}
+
+.story-card {
+background: var(–bg);
+padding: 28px;
+display: flex;
+flex-direction: column;
+gap: 14px;
+transition: background 0.2s;
+position: relative;
+overflow: hidden;
+}
+.story-card:hover { background: var(–surface); }
+.story-card::before {
+content: ‘’;
+position: absolute;
+top: 0; left: 0;
+width: 3px; height: 0;
+background: var(–accent);
+transition: height 0.3s ease;
+}
+.story-card:hover::before { height: 100%; }
+
+.card-meta { display: flex; justify-content: space-between; align-items: center; }
+
+.source-tag {
+font-family: ‘Space Mono’, monospace;
+font-size: 0.6rem;
+letter-spacing: 2px;
+color: var(–accent);
+text-transform: uppercase;
+background: rgba(255,60,0,0.1);
+padding: 3px 8px;
+border-radius: 1px;
+}
+
+.pub-date { font-family: ‘Space Mono’, monospace; font-size: 0.6rem; color: var(–muted); }
+
+.card-title {
+font-family: ‘Bebas Neue’, sans-serif;
+font-size: 1.5rem;
+letter-spacing: 1px;
+line-height: 1.1;
+color: var(–text);
+}
+
+.card-original {
+font-size: 0.82rem;
+line-height: 1.6;
+color: var(–muted);
+border-left: 2px solid var(–border);
+padding-left: 12px;
+font-style: italic;
+display: -webkit-box;
+-webkit-line-clamp: 3;
+-webkit-box-orient: vertical;
+overflow: hidden;
+}
+
+.card-rewritten {
+font-size: 0.9rem;
+line-height: 1.65;
+color: var(–text);
+background: rgba(255,214,0,0.05);
+border: 1px solid rgba(255,214,0,0.15);
+border-radius: 2px;
+padding: 14px;
+}
+
+.rewrite-label {
+font-family: ‘Space Mono’, monospace;
+font-size: 0.55rem;
+letter-spacing: 3px;
+text-transform: uppercase;
+color: var(–accent2);
+margin-bottom: 8px;
+display: block;
+}
+
+.card-actions { display: flex; gap: 10px; align-items: center; }
+
+.btn-sm {
+font-family: ‘Space Mono’, monospace;
+font-size: 0.6rem;
+letter-spacing: 1px;
+padding: 6px 14px;
+border: 1px solid var(–border);
+border-radius: 2px;
+cursor: pointer;
+background: none;
+color: var(–muted);
+text-transform: uppercase;
+transition: all 0.15s;
+}
+.btn-sm:hover { border-color: var(–accent); color: var(–accent); }
+.btn-sm.rewrite-btn { border-color: var(–accent); color: var(–accent); }
+.btn-sm.rewrite-btn:hover { background: var(–accent); color: #fff; }
+.btn-sm.rewrite-btn:disabled { border-color: #333; color: #444; cursor: not-allowed; }
+
+.original-link {
+font-family: ‘Space Mono’, monospace;
+font-size: 0.6rem;
+letter-spacing: 1px;
+color: var(–muted);
+text-decoration: none;
+margin-left: auto;
+transition: color 0.15s;
+}
+.original-link:hover { color: var(–text); }
+
+.spinner {
+width: 14px; height: 14px;
+border: 2px solid var(–border);
+border-top-color: var(–accent);
+border-radius: 50%;
+animation: spin 0.7s linear infinite;
+display: inline-block;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.status-msg {
+grid-column: 1 / -1;
+padding: 80px 40px;
+text-align: center;
+font-family: ‘Space Mono’, monospace;
+font-size: 0.8rem;
+color: var(–muted);
+letter-spacing: 2px;
+}
+.big-status {
+font-family: ‘Bebas Neue’, sans-serif;
+font-size: 4rem;
+color: var(–surface2);
+letter-spacing: 8px;
+display: block;
+margin-bottom: 16px;
+}
+
+.rewrite-bar {
+display: flex;
+align-items: center;
+justify-content: space-between;
+background: var(–surface);
+border: 1px solid var(–border);
+border-radius: 2px;
+padding: 14px 20px;
+margin-bottom: 20px;
+}
+.rewrite-bar p {
+font-family: ‘Space Mono’, monospace;
+font-size: 0.7rem;
+color: var(–muted);
+letter-spacing: 1px;
+}
+.progress-bar-wrap {
+height: 3px;
+background: var(–border);
+border-radius: 2px;
+margin-top: 8px;
+overflow: hidden;
+width: 200px;
+}
+.progress-bar-fill {
+height: 100%;
+background: var(–accent);
+width: 0%;
+transition: width 0.3s;
+}
+
+.toast {
+position: fixed;
+bottom: 30px;
+right: 30px;
+background: var(–surface);
+border: 1px solid var(–border);
+border-left: 3px solid var(–green);
+padding: 14px 20px;
+font-family: ‘Space Mono’, monospace;
+font-size: 0.7rem;
+letter-spacing: 1px;
+color: var(–text);
+border-radius: 2px;
+transform: translateY(100px);
+opacity: 0;
+transition: all 0.3s ease;
+z-index: 1000;
+max-width: 320px;
+}
+.toast.show { transform: translateY(0); opacity: 1; }
+</style>
+
+</head>
+<body>
+
+<header>
+  <div class="logo">RE<span>WRITE</span></div>
+  <div class="header-right">
+    <div class="api-key-wrap">
+      <label>OpenAI Key</label>
+      <input type="password" id="apiKey" placeholder="sk-..." autocomplete="off">
+    </div>
+  </div>
+</header>
+
+<div class="ticker">
+  <span class="ticker-inner">
+    ★ REWRITE — AI-POWERED HIP HOP NEWS ★ LATEST STORIES FROM ACROSS THE CULTURE ★ POWERED BY OPENAI ★ REWRITE — AI-POWERED HIP HOP NEWS ★ LATEST STORIES FROM ACROSS THE CULTURE ★ POWERED BY OPENAI ★
+  </span>
+</div>
+
+<div class="container">
+  <div class="controls">
+    <div class="source-chips" id="sourceChips">
+      <button class="chip active" data-name="HipHopDX"   data-url="https://hiphopdx.com/rss">HipHopDX</button>
+      <button class="chip active" data-name="AllHipHop"  data-url="https://allhiphop.com/feed">AllHipHop</button>
+      <button class="chip active" data-name="The Source" data-url="https://thesource.com/feed">The Source</button>
+      <button class="chip"        data-name="XXL"        data-url="https://xxlmag.com/feed">XXL</button>
+      <button class="chip"        data-name="Pitchfork"  data-url="https://pitchfork.com/feed/feed-news/rss">Pitchfork</button>
+    </div>
+
+```
+<select class="style-select" id="styleSelect">
+  <option value="street reporter">Street Reporter</option>
+  <option value="hype man">Hype Man</option>
+  <option value="scholarly hip hop academic">Academic</option>
+  <option value="old school hip hop head">Old School Head</option>
+  <option value="Gen Z rap fan">Gen Z Fan</option>
+  <option value="neutral journalist">Neutral Journalist</option>
+</select>
+
+<button class="btn btn-primary" id="fetchBtn">FETCH STORIES</button>
+```
+
+  </div>
+
+  <div class="debug-log" id="debugLog"></div>
+
+  <div id="rewriteBar" class="rewrite-bar" style="display:none">
+    <div>
+      <p id="rewriteBarText">0 of 0 stories rewritten</p>
+      <div class="progress-bar-wrap"><div class="progress-bar-fill" id="progressFill"></div></div>
+    </div>
+    <button class="btn btn-primary" id="rewriteAllBtn">REWRITE ALL</button>
+  </div>
+
+  <div class="stories-grid" id="storiesGrid">
+    <div class="status-msg">
+      <span class="big-status">FEED</span>
+      Select your sources above and hit FETCH STORIES
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+let stories = [];
+
+// CORS proxies to try in order
+const PROXIES = [
+  url => `https://corsproxy.io/?${encodeURIComponent(url)}`,
+  url => `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`,
+  url => `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(url)}`,
+];
+
+document.querySelectorAll('.chip').forEach(chip => {
+  chip.addEventListener('click', () => chip.classList.toggle('active'));
+});
+
+function log(msg, type = '') {
+  const el = document.getElementById('debugLog');
+  el.classList.add('visible');
+  const p = document.createElement('p');
+  if (type) p.className = type;
+  p.textContent = '› ' + msg;
+  el.appendChild(p);
+  el.scrollTop = el.scrollHeight;
+}
+
+async function fetchWithProxy(url) {
+  for (let i = 0; i < PROXIES.length; i++) {
+    const proxyUrl = PROXIES[i](url);
+    try {
+      log(`Trying proxy ${i + 1} for ${url.split('/')[2]}...`);
+      const res = await fetch(proxyUrl, { signal: AbortSignal.timeout(8000) });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const text = await res.text();
+      // allorigins wraps in JSON
+      try {
+        const json = JSON.parse(text);
+        if (json.contents) return json.contents;
+      } catch(_) {}
+      return text;
+    } catch (e) {
+      log(`Proxy ${i + 1} failed: ${e.message}`, 'err');
+    }
+  }
+  throw new Error('All proxies failed');
+}
+
+function parseRSS(xmlStr, sourceName) {
+  const parser = new DOMParser();
+  const xml = parser.parseFromString(xmlStr, 'text/xml');
+  const items = xml.querySelectorAll('item');
+  const results = [];
+  items.forEach((item, i) => {
+    if (i >= 8) return;
+    const title = item.querySelector('title')?.textContent?.replace(/<!\[CDATA\[|\]\]>/g, '').trim() || 'Untitled';
+    const link  = item.querySelector('link')?.textContent?.trim() || '#';
+    const desc  = item.querySelector('description')?.textContent?.replace(/<!\[CDATA\[|\]\]>/g, '').trim() || '';
+    const pubDate = item.querySelector('pubDate')?.textContent?.trim() || '';
+    const div = document.createElement('div');
+    div.innerHTML = desc;
+    const cleanDesc = (div.textContent || '').slice(0, 600).trim();
+    if (!title || title === 'Untitled') return;
+    results.push({ title, link, description: cleanDesc, pubDate, source: sourceName, rewritten: null });
+  });
+  return results;
+}
+
+document.getElementById('fetchBtn').addEventListener('click', async () => {
+  const activeChips = [...document.querySelectorAll('.chip.active')];
+  if (!activeChips.length) { showToast('Select at least one source!'); return; }
+
+  const btn = document.getElementById('fetchBtn');
+  btn.disabled = true;
+  btn.textContent = 'FETCHING...';
+  document.getElementById('debugLog').innerHTML = '';
+
+  const grid = document.getElementById('storiesGrid');
+  grid.innerHTML = `<div class="status-msg"><span class="spinner"></span><br><br>Pulling stories from the culture...</div>`;
+
+  stories = [];
+
+  for (const chip of activeChips) {
+    try {
+      const xml = await fetchWithProxy(chip.dataset.url);
+      const parsed = parseRSS(xml, chip.dataset.name);
+      log(`${chip.dataset.name}: ${parsed.length} stories found`, parsed.length ? 'ok' : 'err');
+      stories.push(...parsed);
+    } catch(e) {
+      log(`${chip.dataset.name}: FAILED — ${e.message}`, 'err');
+    }
+  }
+
+  stories = stories.sort(() => Math.random() - 0.5);
+
+  btn.disabled = false;
+  btn.textContent = 'FETCH STORIES';
+
+  if (!stories.length) {
+    grid.innerHTML = `<div class="status-msg"><span class="big-status">404</span>No stories loaded. RSS feeds may be blocking the proxy — try again or check the log above.</div>`;
+    return;
+  }
+
+  renderStories();
+  document.getElementById('rewriteBar').style.display = 'flex';
+  updateProgress();
+});
+
+function renderStories() {
+  const grid = document.getElementById('storiesGrid');
+  grid.innerHTML = '';
+  stories.forEach((story, idx) => grid.appendChild(createCard(story, idx)));
+}
+
+function createCard(story, idx) {
+  const card = document.createElement('div');
+  card.className = 'story-card';
+  card.id = `card-${idx}`;
+  const dateStr = story.pubDate ? new Date(story.pubDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : '';
+  card.innerHTML = `
+    <div class="card-meta">
+      <span class="source-tag">${story.source}</span>
+      <span class="pub-date">${dateStr}</span>
+    </div>
+    <div class="card-title">${story.title}</div>
+    ${story.description ? `<div class="card-original">${story.description}</div>` : ''}
+    ${story.rewritten ? `
+      <div class="card-rewritten">
+        <span class="rewrite-label">✦ AI Rewrite</span>
+        ${story.rewritten}
+      </div>` : ''}
+    <div class="card-actions">
+      <button class="btn-sm rewrite-btn" id="rewrite-btn-${idx}" onclick="rewriteSingle(${idx})">
+        ${story.rewritten ? 'REWRITE AGAIN' : 'REWRITE'}
+      </button>
+      ${story.rewritten ? `<button class="btn-sm" onclick="copyText(${idx})">COPY</button>` : ''}
+      <a class="original-link" href="${story.link}" target="_blank">↗ ORIGINAL</a>
+    </div>
+  `;
+  return card;
+}
+
+function updateCard(idx) {
+  const existing = document.getElementById(`card-${idx}`);
+  if (existing) existing.replaceWith(createCard(stories[idx], idx));
+}
+
+async function rewriteSingle(idx) {
+  const apiKey = document.getElementById('apiKey').value.trim();
+  if (!apiKey) { showToast('Add your OpenAI API key in the header!'); return; }
+  const btn = document.getElementById(`rewrite-btn-${idx}`);
+  if (btn) { btn.disabled = true; btn.textContent = 'WRITING...'; }
+  const style = document.getElementById('styleSelect').value;
+  try {
+    stories[idx].rewritten = await callOpenAI(apiKey, stories[idx], style);
+    updateCard(idx);
+    updateProgress();
+    showToast('Story rewritten ✓');
+  } catch(e) {
+    showToast('Error: ' + (e.message || 'API call failed'));
+    if (btn) { btn.disabled = false; btn.textContent = 'REWRITE'; }
+  }
+}
+
+async function callOpenAI(apiKey, story, style) {
+  const res = await fetch('https://api.openai.com/v1/chat/completions', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${apiKey}`
+    },
+    body: JSON.stringify({
+      model: 'gpt-4o',
+      max_tokens: 400,
+      messages: [
+        {
+          role: 'system',
+          content: `You are a hip hop culture writer with the voice and perspective of a ${style}. You write punchy, engaging, factual rewrites of hip hop news stories. Never start with "Here is..." — jump straight into the story. Keep it around 150 words.`
+        },
+        {
+          role: 'user',
+          content: `Rewrite this hip hop news story in your own words:\n\nTitle: ${story.title}\n\nOriginal: ${story.description || '(no description available, use the title)'}`
+        }
+      ]
+    })
+  });
+
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.error?.message || `HTTP ${res.status}`);
+  }
+
+  const data = await res.json();
+  return data.choices[0].message.content.trim();
+}
+
+document.getElementById('rewriteAllBtn').addEventListener('click', async () => {
+  const apiKey = document.getElementById('apiKey').value.trim();
+  if (!apiKey) { showToast('Add your OpenAI API key in the header!'); return; }
+  const btn = document.getElementById('rewriteAllBtn');
+  btn.disabled = true;
+  btn.textContent = 'RUNNING...';
+  const style = document.getElementById('styleSelect').value;
+
+  for (let i = 0; i < stories.length; i++) {
+    if (stories[i].rewritten) continue;
+    try {
+      stories[i].rewritten = await callOpenAI(apiKey, stories[i], style);
+      updateCard(i);
+      updateProgress();
+      await new Promise(r => setTimeout(r, 400));
+    } catch(e) {
+      showToast('Stopped at story ' + (i+1) + ': ' + e.message);
+      break;
+    }
+  }
+
+  btn.disabled = false;
+  btn.textContent = 'REWRITE ALL';
+  showToast('All done! ✦');
+});
+
+function updateProgress() {
+  const done = stories.filter(s => s.rewritten).length;
+  const total = stories.length;
+  document.getElementById('rewriteBarText').textContent = `${done} of ${total} stories rewritten`;
+  document.getElementById('progressFill').style.width = total ? `${(done/total)*100}%` : '0%';
+}
+
+function copyText(idx) {
+  const s = stories[idx];
+  navigator.clipboard.writeText(`${s.title}\n\n${s.rewritten}\n\nOriginal: ${s.link}`)
+    .then(() => showToast('Copied!'));
+}
+
+let toastTimeout;
+function showToast(msg) {
+  const toast = document.getElementById('toast');
+  toast.textContent = msg;
+  toast.classList.add('show');
+  clearTimeout(toastTimeout);
+  toastTimeout = setTimeout(() => toast.classList.remove('show'), 3500);
+}
+</script>
+
+</body>
+</html>
