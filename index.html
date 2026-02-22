@@ -65,11 +65,7 @@ font-family: ‘Space Mono’, monospace; font-size: 0.55rem; color: #444444; le
 .chip-legend span { border: 1px dashed #444444; padding: 1px 6px; margin-right: 6px; }
 
 .controls-row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
-.style-select {
-font-family: ‘Space Mono’, monospace; font-size: 0.65rem; background-color: #111111;
-border: 1px solid #2a2a2a; color: #f0ece4; padding: 8px 12px; border-radius: 2px;
-cursor: pointer; letter-spacing: 1px; flex: 1;
-}
+
 .btn {
 font-family: ‘Bebas Neue’, sans-serif; letter-spacing: 3px; font-size: 1rem;
 padding: 10px 24px; cursor: pointer; border: none; border-radius: 2px;
@@ -377,14 +373,7 @@ white-space: nowrap;
 
 ```
 <div class="controls-row">
-  <select class="style-select" id="styleSelect">
-    <option value="street reporter">Street Reporter</option>
-    <option value="hype man">Hype Man</option>
-    <option value="scholarly hip hop academic">Academic</option>
-    <option value="old school hip hop head">Old School Head</option>
-    <option value="Gen Z rap fan">Gen Z Fan</option>
-    <option value="neutral journalist">Neutral Journalist</option>
-  </select>
+
   <button class="btn btn-primary" id="fetchBtn">FETCH STORIES</button>
   <span style="font-family:'Space Mono',monospace;font-size:0.58rem;color:#00ff88;letter-spacing:1px;border:1px solid #00ff88;padding:6px 10px;border-radius:2px;white-space:nowrap;">&#9679; 48H FRESH ONLY</span>
   <button class="btn-wp-toggle" id="wpToggle" onclick="toggleWP()">&#9654; WORDPRESS</button>
@@ -743,11 +732,11 @@ async function rewriteSingle(idx) {
 
 // ─── OpenAI Call ──────────────────────────────────────────────────────────────
 async function callOpenAI(apiKey, story) {
-  var style = document.getElementById('styleSelect').value;
+  
   var systemPrompt = [
     '════ WHO YOU ARE ════',
     'You are a staff journalist at a music and culture publication. You have received a news brief about a hip hop story. Your job is to write an original news article for your outlet reporting the same verified facts.',
-    'Your editorial voice is that of a ' + style + '.',
+    'Your editorial voice is that of a authoritative hip hop journalist.',
     '',
     '════ CORE MANDATE ════',
     'You are NOT summarizing. You are NOT paraphrasing. You are NOT rearranging sentences.',
