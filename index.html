@@ -8,13 +8,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
 * { margin: 0; padding: 0; box-sizing: border-box; }
-
-html, body {
-background-color: #0a0a0a;
-color: #f0ece4;
-font-family: ‘DM Sans’, sans-serif;
-min-height: 100vh;
-}
+html, body { background-color: #0a0a0a; color: #f0ece4; font-family: 'DM Sans', sans-serif; min-height: 100vh; }
 
 header {
 background-color: #0a0a0a;
@@ -28,281 +22,136 @@ position: sticky;
 top: 0;
 z-index: 100;
 }
-
-.logo {
-font-family: ‘Bebas Neue’, sans-serif;
-font-size: 1.8rem;
-letter-spacing: 4px;
-color: #f0ece4;
-}
+.logo { font-family: ‘Bebas Neue’, sans-serif; font-size: 1.8rem; letter-spacing: 4px; color: #f0ece4; }
 .logo span { color: #ff3c00; }
 
 .api-key-wrap {
-display: flex;
-align-items: center;
-gap: 8px;
-background-color: #111111;
-border: 1px solid #2a2a2a;
-border-radius: 4px;
-padding: 6px 10px;
+display: flex; align-items: center; gap: 8px;
+background-color: #111111; border: 1px solid #2a2a2a; border-radius: 4px; padding: 6px 10px;
 }
 .api-key-wrap label {
-font-family: ‘Space Mono’, monospace;
-font-size: 0.55rem;
-color: #666666;
-text-transform: uppercase;
-letter-spacing: 2px;
-white-space: nowrap;
+font-family: ‘Space Mono’, monospace; font-size: 0.55rem; color: #666666;
+text-transform: uppercase; letter-spacing: 2px; white-space: nowrap;
 }
 .api-key-wrap input {
-background: none;
-border: none;
-outline: none;
-color: #00ff88;
-font-family: ‘Space Mono’, monospace;
-font-size: 0.7rem;
-width: 150px;
+background: none; border: none; outline: none; color: #00ff88;
+font-family: ‘Space Mono’, monospace; font-size: 0.7rem; width: 150px;
 }
 .api-key-wrap input::placeholder { color: #2a2a2a; }
 
-.ticker {
-background-color: #ff3c00;
-padding: 5px 0;
-overflow: hidden;
-white-space: nowrap;
-}
+.ticker { background-color: #ff3c00; padding: 5px 0; overflow: hidden; white-space: nowrap; }
 .ticker-inner {
-display: inline-block;
-animation: ticker 40s linear infinite;
-font-family: ‘Space Mono’, monospace;
-font-size: 0.65rem;
-letter-spacing: 3px;
-color: #000000;
-font-weight: 700;
+display: inline-block; animation: ticker 40s linear infinite;
+font-family: ‘Space Mono’, monospace; font-size: 0.65rem; letter-spacing: 3px; color: #000000; font-weight: 700;
 }
-@keyframes ticker {
-from { transform: translateX(100vw); }
-to { transform: translateX(-100%); }
-}
+@keyframes ticker { from { transform: translateX(100vw); } to { transform: translateX(-100%); } }
 
 .container { max-width: 1200px; margin: 0 auto; padding: 24px 20px; }
-
-.controls {
-display: flex;
-flex-direction: column;
-gap: 14px;
-margin-bottom: 20px;
-}
-
+.controls { display: flex; flex-direction: column; gap: 14px; margin-bottom: 20px; }
 .source-chips { display: flex; gap: 8px; flex-wrap: wrap; }
 
 .chip {
-font-family: ‘Space Mono’, monospace;
-font-size: 0.6rem;
-letter-spacing: 1px;
-padding: 7px 14px;
-border: 1px solid #2a2a2a;
-border-radius: 2px;
-cursor: pointer;
-background-color: #0a0a0a;
-color: #666666;
-text-transform: uppercase;
-transition: all 0.15s;
+font-family: ‘Space Mono’, monospace; font-size: 0.6rem; letter-spacing: 1px;
+padding: 7px 14px; border: 1px solid #2a2a2a; border-radius: 2px; cursor: pointer;
+background-color: #0a0a0a; color: #666666; text-transform: uppercase; transition: all 0.15s;
 }
 .chip.active { border-color: #ff3c00; color: #ff3c00; background-color: #1a0a05; }
+.chip.scrape { border-style: dashed; }
+.chip.scrape.active { border-style: dashed; }
 
-.controls-row {
-display: flex;
-gap: 10px;
-align-items: center;
-flex-wrap: wrap;
+.chip-legend {
+font-family: ‘Space Mono’, monospace; font-size: 0.55rem; color: #444444; letter-spacing: 1px;
 }
+.chip-legend span { border: 1px dashed #444444; padding: 1px 6px; margin-right: 6px; }
 
+.controls-row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
 .style-select {
-font-family: ‘Space Mono’, monospace;
-font-size: 0.65rem;
-background-color: #111111;
-border: 1px solid #2a2a2a;
-color: #f0ece4;
-padding: 8px 12px;
-border-radius: 2px;
-cursor: pointer;
-letter-spacing: 1px;
-flex: 1;
+font-family: ‘Space Mono’, monospace; font-size: 0.65rem; background-color: #111111;
+border: 1px solid #2a2a2a; color: #f0ece4; padding: 8px 12px; border-radius: 2px;
+cursor: pointer; letter-spacing: 1px; flex: 1;
 }
-
 .btn {
-font-family: ‘Bebas Neue’, sans-serif;
-letter-spacing: 3px;
-font-size: 1rem;
-padding: 10px 24px;
-cursor: pointer;
-border: none;
-border-radius: 2px;
-transition: all 0.15s;
-white-space: nowrap;
+font-family: ‘Bebas Neue’, sans-serif; letter-spacing: 3px; font-size: 1rem;
+padding: 10px 24px; cursor: pointer; border: none; border-radius: 2px;
+transition: all 0.15s; white-space: nowrap;
 }
 .btn-primary { background-color: #ff3c00; color: #ffffff; }
 .btn-primary:hover { background-color: #ff5500; }
 .btn-primary:disabled { background-color: #2a2a2a; color: #444444; cursor: not-allowed; }
 
 .debug-log {
-background-color: #111111;
-border: 1px solid #2a2a2a;
-border-radius: 2px;
-padding: 10px 14px;
-margin-bottom: 16px;
-font-family: ‘Space Mono’, monospace;
-font-size: 0.6rem;
-color: #666666;
-letter-spacing: 1px;
-max-height: 70px;
-overflow-y: auto;
-display: none;
+background-color: #111111; border: 1px solid #2a2a2a; border-radius: 2px;
+padding: 10px 14px; margin-bottom: 16px; font-family: ‘Space Mono’, monospace;
+font-size: 0.6rem; color: #666666; letter-spacing: 1px;
+max-height: 80px; overflow-y: auto; display: none;
 }
 .debug-log.visible { display: block; }
 .debug-log p { line-height: 1.9; }
 .debug-log p.ok { color: #00ff88; }
 .debug-log p.err { color: #ff3c00; }
+.debug-log p.warn { color: #ffd600; }
 
 .rewrite-bar {
-display: flex;
-align-items: center;
-justify-content: space-between;
-background-color: #111111;
-border: 1px solid #2a2a2a;
-border-radius: 2px;
-padding: 12px 16px;
-margin-bottom: 16px;
-gap: 12px;
+display: flex; align-items: center; justify-content: space-between;
+background-color: #111111; border: 1px solid #2a2a2a; border-radius: 2px;
+padding: 12px 16px; margin-bottom: 16px; gap: 12px;
 }
-.rewrite-bar p {
-font-family: ‘Space Mono’, monospace;
-font-size: 0.65rem;
-color: #666666;
-letter-spacing: 1px;
-}
-.progress-bar-wrap {
-height: 2px;
-background-color: #2a2a2a;
-border-radius: 2px;
-margin-top: 6px;
-overflow: hidden;
-width: 120px;
-}
-.progress-bar-fill {
-height: 100%;
-background-color: #ff3c00;
-width: 0%;
-transition: width 0.3s;
-}
+.rewrite-bar p { font-family: ‘Space Mono’, monospace; font-size: 0.65rem; color: #666666; letter-spacing: 1px; }
+.progress-bar-wrap { height: 2px; background-color: #2a2a2a; border-radius: 2px; margin-top: 6px; overflow: hidden; width: 120px; }
+.progress-bar-fill { height: 100%; background-color: #ff3c00; width: 0%; transition: width 0.3s; }
 
 .stories-grid {
-display: grid;
-grid-template-columns: 1fr;
-gap: 1px;
-background-color: #2a2a2a;
-border: 1px solid #2a2a2a;
+display: grid; grid-template-columns: 1fr; gap: 1px;
+background-color: #2a2a2a; border: 1px solid #2a2a2a;
 }
-@media(min-width: 700px) {
-.stories-grid { grid-template-columns: repeat(2, 1fr); }
-}
-@media(min-width: 1100px) {
-.stories-grid { grid-template-columns: repeat(3, 1fr); }
-}
+@media(min-width: 700px) { .stories-grid { grid-template-columns: repeat(2, 1fr); } }
+@media(min-width: 1100px) { .stories-grid { grid-template-columns: repeat(3, 1fr); } }
 
 .story-card {
-background-color: #0a0a0a;
-padding: 22px;
-display: flex;
-flex-direction: column;
-gap: 12px;
-position: relative;
-overflow: hidden;
+background-color: #0a0a0a; padding: 22px; display: flex; flex-direction: column;
+gap: 12px; position: relative; overflow: hidden;
 }
 .story-card::before {
-content: ‘’;
-position: absolute;
-top: 0; left: 0;
-width: 3px; height: 0;
-background-color: #ff3c00;
-transition: height 0.3s;
+content: ‘’; position: absolute; top: 0; left: 0;
+width: 3px; height: 0; background-color: #ff3c00; transition: height 0.3s;
 }
 .story-card:hover { background-color: #111111; }
 .story-card:hover::before { height: 100%; }
 
-.card-meta { display: flex; justify-content: space-between; align-items: center; }
-
+.card-meta { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
 .source-tag {
-font-family: ‘Space Mono’, monospace;
-font-size: 0.55rem;
-letter-spacing: 2px;
-color: #ff3c00;
-text-transform: uppercase;
-background-color: #1a0a05;
-padding: 3px 7px;
-border-radius: 1px;
+font-family: ‘Space Mono’, monospace; font-size: 0.55rem; letter-spacing: 2px;
+color: #ff3c00; text-transform: uppercase; background-color: #1a0a05; padding: 3px 7px; border-radius: 1px;
 }
-.pub-date {
-font-family: ‘Space Mono’, monospace;
-font-size: 0.55rem;
-color: #444444;
-}
+.source-tag.scraped { border: 1px dashed #ff3c00; background-color: transparent; }
+.pub-date { font-family: ‘Space Mono’, monospace; font-size: 0.55rem; color: #444444; }
 
-.card-title {
-font-family: ‘Bebas Neue’, sans-serif;
-font-size: 1.4rem;
-letter-spacing: 1px;
-line-height: 1.1;
-color: #f0ece4;
-}
+.card-title { font-family: ‘Bebas Neue’, sans-serif; font-size: 1.4rem; letter-spacing: 1px; line-height: 1.1; color: #f0ece4; }
 
 .card-original {
-font-size: 0.8rem;
-line-height: 1.6;
-color: #555555;
-border-left: 2px solid #2a2a2a;
-padding-left: 10px;
-font-style: italic;
-display: -webkit-box;
--webkit-line-clamp: 3;
--webkit-box-orient: vertical;
-overflow: hidden;
+font-size: 0.8rem; line-height: 1.6; color: #555555;
+border-left: 2px solid #2a2a2a; padding-left: 10px; font-style: italic;
+display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;
 }
 
 .card-rewritten {
-font-size: 0.88rem;
-line-height: 1.65;
-color: #f0ece4;
-background-color: #0f0f08;
-border: 1px solid #2a2400;
-border-radius: 2px;
-padding: 12px;
+font-size: 0.88rem; line-height: 1.7; color: #f0ece4;
+background-color: #0f0f08; border: 1px solid #2a2400; border-radius: 2px; padding: 14px;
 }
 .rewrite-label {
-font-family: ‘Space Mono’, monospace;
-font-size: 0.52rem;
-letter-spacing: 3px;
-text-transform: uppercase;
-color: #ffd600;
-margin-bottom: 8px;
-display: block;
+font-family: ‘Space Mono’, monospace; font-size: 0.52rem; letter-spacing: 3px;
+text-transform: uppercase; color: #ffd600; margin-bottom: 10px; display: block;
+}
+.word-count {
+font-family: ‘Space Mono’, monospace; font-size: 0.5rem; color: #444444;
+letter-spacing: 1px; margin-top: 8px; text-align: right;
 }
 
 .card-actions { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
-
 .btn-sm {
-font-family: ‘Space Mono’, monospace;
-font-size: 0.58rem;
-letter-spacing: 1px;
-padding: 6px 12px;
-border: 1px solid #2a2a2a;
-border-radius: 2px;
-cursor: pointer;
-background: none;
-color: #666666;
-text-transform: uppercase;
-transition: all 0.15s;
+font-family: ‘Space Mono’, monospace; font-size: 0.58rem; letter-spacing: 1px;
+padding: 6px 12px; border: 1px solid #2a2a2a; border-radius: 2px; cursor: pointer;
+background: none; color: #666666; text-transform: uppercase; transition: all 0.15s;
 }
 .btn-sm:hover { border-color: #ff3c00; color: #ff3c00; }
 .btn-sm.rewrite-btn { border-color: #ff3c00; color: #ff3c00; }
@@ -310,67 +159,35 @@ transition: all 0.15s;
 .btn-sm.rewrite-btn:disabled { border-color: #2a2a2a; color: #333333; cursor: not-allowed; }
 
 .original-link {
-font-family: ‘Space Mono’, monospace;
-font-size: 0.58rem;
-letter-spacing: 1px;
-color: #444444;
-text-decoration: none;
-margin-left: auto;
-transition: color 0.15s;
+font-family: ‘Space Mono’, monospace; font-size: 0.58rem; letter-spacing: 1px;
+color: #444444; text-decoration: none; margin-left: auto; transition: color 0.15s;
 }
 .original-link:hover { color: #f0ece4; }
 
 .spinner {
-width: 14px; height: 14px;
-border: 2px solid #2a2a2a;
-border-top-color: #ff3c00;
-border-radius: 50%;
-animation: spin 0.7s linear infinite;
-display: inline-block;
+width: 14px; height: 14px; border: 2px solid #2a2a2a; border-top-color: #ff3c00;
+border-radius: 50%; animation: spin 0.7s linear infinite; display: inline-block;
 }
 @keyframes spin { to { transform: rotate(360deg); } }
 
 .status-msg {
-grid-column: 1 / -1;
-padding: 60px 30px;
-text-align: center;
-font-family: ‘Space Mono’, monospace;
-font-size: 0.75rem;
-color: #444444;
-letter-spacing: 2px;
-background-color: #0a0a0a;
+grid-column: 1 / -1; padding: 60px 30px; text-align: center;
+font-family: ‘Space Mono’, monospace; font-size: 0.75rem; color: #444444;
+letter-spacing: 2px; background-color: #0a0a0a;
 }
 .big-status {
-font-family: ‘Bebas Neue’, sans-serif;
-font-size: 3.5rem;
-color: #1a1a1a;
-letter-spacing: 8px;
-display: block;
-margin-bottom: 12px;
+font-family: ‘Bebas Neue’, sans-serif; font-size: 3.5rem; color: #1a1a1a;
+letter-spacing: 8px; display: block; margin-bottom: 12px;
 }
 
 .toast {
-position: fixed;
-bottom: 24px;
-right: 20px;
-left: 20px;
-background-color: #111111;
-border: 1px solid #2a2a2a;
-border-left: 3px solid #00ff88;
-padding: 12px 16px;
-font-family: ‘Space Mono’, monospace;
-font-size: 0.65rem;
-letter-spacing: 1px;
-color: #f0ece4;
-border-radius: 2px;
-transform: translateY(120px);
-opacity: 0;
-transition: all 0.3s ease;
-z-index: 1000;
+position: fixed; bottom: 24px; right: 20px; left: 20px;
+background-color: #111111; border: 1px solid #2a2a2a; border-left: 3px solid #00ff88;
+padding: 12px 16px; font-family: ‘Space Mono’, monospace; font-size: 0.65rem;
+letter-spacing: 1px; color: #f0ece4; border-radius: 2px;
+transform: translateY(120px); opacity: 0; transition: all 0.3s ease; z-index: 1000;
 }
-@media(min-width: 500px) {
-.toast { left: auto; width: 280px; }
-}
+@media(min-width: 500px) { .toast { left: auto; width: 300px; } }
 .toast.show { transform: translateY(0); opacity: 1; }
 </style>
 
@@ -392,14 +209,20 @@ z-index: 1000;
 <div class="container">
   <div class="controls">
     <div class="source-chips" id="sourceChips">
-      <button class="chip active" data-name="HipHopDX"     data-url="https://hiphopdx.com/rss">HipHopDX</button>
-      <button class="chip active" data-name="AllHipHop"    data-url="https://allhiphop.com/feed">AllHipHop</button>
-      <button class="chip active" data-name="The Source"   data-url="https://thesource.com/feed">The Source</button>
-      <button class="chip active" data-name="Complex"      data-url="https://www.complex.com/music/rss">Complex</button>
-      <button class="chip active" data-name="HotNewHipHop" data-url="https://www.hotnewhiphop.com/rss/news.rss">HotNewHipHop</button>
-      <button class="chip"        data-name="TMZ HipHop"   data-url="https://www.tmz.com/category/hip-hop/rss.xml">TMZ HipHop</button>
-      <button class="chip"        data-name="XXL"          data-url="https://xxlmag.com/feed">XXL</button>
-      <button class="chip"        data-name="Pitchfork"    data-url="https://pitchfork.com/feed/feed-news/rss">Pitchfork</button>
+      <!-- RSS sources (solid border) -->
+      <button class="chip active"        data-type="rss"     data-name="AllHipHop"    data-url="https://allhiphop.com/feed">AllHipHop</button>
+      <button class="chip active"        data-type="rss"     data-name="The Source"   data-url="https://thesource.com/feed">The Source</button>
+      <button class="chip active"        data-type="rss"     data-name="Complex"      data-url="https://www.complex.com/music/rss">Complex</button>
+      <button class="chip"               data-type="rss"     data-name="TMZ HipHop"   data-url="https://www.tmz.com/category/hip-hop/rss.xml">TMZ HipHop</button>
+      <button class="chip"               data-type="rss"     data-name="XXL"          data-url="https://xxlmag.com/feed">XXL</button>
+      <button class="chip"               data-type="rss"     data-name="Pitchfork"    data-url="https://pitchfork.com/feed/feed-news/rss">Pitchfork</button>
+      <!-- Scraped sources (dashed border) -->
+      <button class="chip scrape active" data-type="scrape"  data-name="HipHopDX"    data-url="https://hiphopdx.com/news/" data-selector="article a[href*='/news/'], .article-title a, h2 a, h3 a">HipHopDX</button>
+      <button class="chip scrape active" data-type="scrape"  data-name="HotNewHipHop" data-url="https://www.hotnewhiphop.com/articles/news" data-selector="article a, .news-list a, h2 a, h3 a, a[href*='/news/']">HotNewHipHop</button>
+      <button class="chip scrape active" data-type="scrape"  data-name="Exclaim"      data-url="https://exclaim.ca/music/news" data-selector="article a, .article-title a, h2 a, h3 a, a[href*='/music/article/']">Exclaim</button>
+    </div>
+    <div class="chip-legend">
+      <span>- - -</span> = web-scraped source &nbsp;|&nbsp; solid border = RSS feed
     </div>
 
 ```
@@ -441,89 +264,161 @@ z-index: 1000;
 <script>
 let stories = [];
 
+// Three CORS proxies to try in sequence
 const PROXIES = [
-  url => `https://corsproxy.io/?${encodeURIComponent(url)}`,
-  url => `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`,
-  url => `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(url)}`,
+  function(url) { return 'https://corsproxy.io/?' + encodeURIComponent(url); },
+  function(url) { return 'https://api.allorigins.win/get?url=' + encodeURIComponent(url); },
+  function(url) { return 'https://api.codetabs.com/v1/proxy?quest=' + encodeURIComponent(url); }
 ];
 
-document.querySelectorAll('.chip').forEach(c => c.addEventListener('click', () => c.classList.toggle('active')));
+document.querySelectorAll('.chip').forEach(function(c) {
+  c.addEventListener('click', function() { c.classList.toggle('active'); });
+});
 
 function log(msg, type) {
-  const el = document.getElementById('debugLog');
+  var el = document.getElementById('debugLog');
   el.classList.add('visible');
-  const p = document.createElement('p');
+  var p = document.createElement('p');
   if (type) p.className = type;
   p.textContent = '› ' + msg;
   el.appendChild(p);
   el.scrollTop = el.scrollHeight;
 }
 
-async function fetchWithProxy(url) {
-  for (let i = 0; i < PROXIES.length; i++) {
+async function fetchRaw(url) {
+  for (var i = 0; i < PROXIES.length; i++) {
     try {
-      log('Trying proxy ' + (i+1) + ' for ' + new URL(url).hostname + '...');
-      const res = await fetch(PROXIES[i](url), { signal: AbortSignal.timeout(9000) });
+      log('Proxy ' + (i+1) + ' → ' + new URL(url).hostname);
+      var res = await fetch(PROXIES[i](url), { signal: AbortSignal.timeout(10000) });
       if (!res.ok) throw new Error('HTTP ' + res.status);
-      const text = await res.text();
-      try { const j = JSON.parse(text); if (j.contents) return j.contents; } catch(e) {}
+      var text = await res.text();
+      // allorigins wraps in JSON
+      try { var j = JSON.parse(text); if (j.contents) return j.contents; } catch(e) {}
       return text;
     } catch(e) {
       log('Proxy ' + (i+1) + ' failed: ' + e.message, 'err');
     }
   }
-  throw new Error('All proxies failed');
+  throw new Error('All proxies exhausted');
 }
 
+// ─── RSS Parser ───────────────────────────────────────────────────────────────
 function parseRSS(xmlStr, sourceName) {
-  const parser = new DOMParser();
-  const xml = parser.parseFromString(xmlStr, 'text/xml');
-  const results = [];
+  var parser = new DOMParser();
+  var xml = parser.parseFromString(xmlStr, 'text/xml');
+  var results = [];
   xml.querySelectorAll('item').forEach(function(item, i) {
     if (i >= 8) return;
-    function getText(tag) { return (item.querySelector(tag) || {}).textContent || ''; }
-    const title = getText('title').replace(/<!\[CDATA\[|\]\]>/g,'').trim() || 'Untitled';
-    const link  = getText('link').trim() || '#';
-    const desc  = getText('description').replace(/<!\[CDATA\[|\]\]>/g,'').trim();
-    const pubDate = getText('pubDate').trim();
-    const div = document.createElement('div');
-    div.innerHTML = desc;
-    const clean = (div.textContent || '').slice(0,600).trim();
+    function g(tag) { return ((item.querySelector(tag) || {}).textContent || '').replace(/<!\[CDATA\[|\]\]>/g,'').trim(); }
+    var title = g('title') || 'Untitled';
+    var link  = g('link') || '#';
+    var desc  = g('description');
+    var pubDate = g('pubDate');
+    // Also try content:encoded for more text
+    var content = g('content\\:encoded') || g('encoded') || '';
+    var div = document.createElement('div');
+    div.innerHTML = content || desc;
+    var clean = (div.textContent || '').replace(/\s+/g,' ').trim().slice(0, 1200);
     if (!title || title === 'Untitled') return;
-    results.push({ title: title, link: link, description: clean, pubDate: pubDate, source: sourceName, rewritten: null });
+    results.push({ title: title, link: link, description: clean, pubDate: pubDate, source: sourceName, scraped: false, rewritten: null });
   });
   return results;
 }
 
+// ─── HTML Scraper ─────────────────────────────────────────────────────────────
+function scrapeHTML(htmlStr, sourceName, pageUrl, selectorStr) {
+  var parser = new DOMParser();
+  var doc = parser.parseFromString(htmlStr, 'text/html');
+  var base = new URL(pageUrl);
+  var seen = {};
+  var results = [];
+  var selectors = selectorStr.split(',').map(function(s) { return s.trim(); });
+
+  selectors.forEach(function(sel) {
+    doc.querySelectorAll(sel).forEach(function(el) {
+      try {
+        var anchor = el.tagName === 'A' ? el : el.querySelector('a');
+        if (!anchor) return;
+        var href = anchor.getAttribute('href') || '';
+        if (!href || href === '#' || href.startsWith('javascript')) return;
+        // Make absolute
+        var absUrl = href.startsWith('http') ? href : new URL(href, base).href;
+        // Deduplicate
+        if (seen[absUrl]) return;
+        // Must be same domain or a news article path
+        var linkHost = new URL(absUrl).hostname;
+        if (linkHost !== base.hostname) return;
+        // Skip nav/social/tag links (too short or contain certain keywords)
+        var text = (anchor.textContent || '').replace(/\s+/g,' ').trim();
+        if (text.length < 20 || text.length > 300) return;
+        if (/^(home|news|music|videos?|photos?|about|contact|search|login|register|subscribe|tag|category|more|see all)/i.test(text)) return;
+        seen[absUrl] = true;
+        // Try to get a description from nearby text
+        var parent = anchor.closest('article') || anchor.closest('.post') || anchor.closest('.item') || anchor.closest('li') || anchor.parentElement;
+        var descEl = parent ? parent.querySelector('p, .excerpt, .description, .summary, .teaser') : null;
+        var desc = descEl ? descEl.textContent.replace(/\s+/g,' ').trim().slice(0,800) : '';
+        results.push({ title: text, link: absUrl, description: desc, pubDate: '', source: sourceName, scraped: true, rewritten: null });
+      } catch(e) {}
+    });
+  });
+
+  // Deduplicate by title similarity and cap at 8
+  var final = [];
+  var titlesSeen = {};
+  results.forEach(function(r) {
+    var key = r.title.slice(0,40).toLowerCase();
+    if (titlesSeen[key]) return;
+    titlesSeen[key] = true;
+    final.push(r);
+  });
+  return final.slice(0, 8);
+}
+
+// ─── Fetch one source ─────────────────────────────────────────────────────────
+async function fetchSource(chip) {
+  var type = chip.dataset.type;
+  var name = chip.dataset.name;
+  var url  = chip.dataset.url;
+  try {
+    var raw = await fetchRaw(url);
+    if (type === 'rss') {
+      var parsed = parseRSS(raw, name);
+      log(name + ': ' + parsed.length + ' stories via RSS', parsed.length ? 'ok' : 'warn');
+      return parsed;
+    } else {
+      var sel = chip.dataset.selector || 'article a, h2 a, h3 a';
+      var scraped = scrapeHTML(raw, name, url, sel);
+      log(name + ': ' + scraped.length + ' stories via scrape', scraped.length ? 'ok' : 'warn');
+      return scraped;
+    }
+  } catch(e) {
+    log(name + ': FAILED — ' + e.message, 'err');
+    return [];
+  }
+}
+
+// ─── Fetch all ────────────────────────────────────────────────────────────────
 document.getElementById('fetchBtn').addEventListener('click', async function() {
-  const active = Array.from(document.querySelectorAll('.chip.active'));
+  var active = Array.from(document.querySelectorAll('.chip.active'));
   if (!active.length) { showToast('Select at least one source!'); return; }
 
-  const btn = document.getElementById('fetchBtn');
+  var btn = document.getElementById('fetchBtn');
   btn.disabled = true; btn.textContent = 'FETCHING...';
   document.getElementById('debugLog').innerHTML = '';
-
-  const grid = document.getElementById('storiesGrid');
-  grid.innerHTML = '<div class="status-msg"><span class="spinner"></span><br><br>Pulling stories from the culture...</div>';
+  document.getElementById('storiesGrid').innerHTML = '<div class="status-msg"><span class="spinner"></span><br><br>Pulling stories from the culture...</div>';
   stories = [];
 
-  for (let i = 0; i < active.length; i++) {
-    const chip = active[i];
-    try {
-      const xml = await fetchWithProxy(chip.dataset.url);
-      const parsed = parseRSS(xml, chip.dataset.name);
-      log(chip.dataset.name + ': ' + parsed.length + ' stories', parsed.length ? 'ok' : 'err');
-      stories = stories.concat(parsed);
-    } catch(e) {
-      log(chip.dataset.name + ': FAILED — ' + e.message, 'err');
-    }
+  for (var i = 0; i < active.length; i++) {
+    var found = await fetchSource(active[i]);
+    stories = stories.concat(found);
   }
 
+  // Shuffle
   stories.sort(function() { return Math.random() - 0.5; });
   btn.disabled = false; btn.textContent = 'FETCH STORIES';
 
   if (!stories.length) {
-    grid.innerHTML = '<div class="status-msg"><span class="big-status">404</span>No stories loaded. Check the debug log above.</div>';
+    document.getElementById('storiesGrid').innerHTML = '<div class="status-msg"><span class="big-status">404</span>No stories found. Check the debug log — proxies or sites may be blocking.</div>';
     return;
   }
 
@@ -532,49 +427,78 @@ document.getElementById('fetchBtn').addEventListener('click', async function() {
   updateProgress();
 });
 
+// ─── Render ───────────────────────────────────────────────────────────────────
 function renderStories() {
-  const grid = document.getElementById('storiesGrid');
+  var grid = document.getElementById('storiesGrid');
   grid.innerHTML = '';
   stories.forEach(function(s, i) { grid.appendChild(createCard(s, i)); });
 }
 
+function wordCount(text) {
+  return text ? text.trim().split(/\s+/).length : 0;
+}
+
 function createCard(story, idx) {
-  const card = document.createElement('div');
+  var card = document.createElement('div');
   card.className = 'story-card';
   card.id = 'card-' + idx;
-  const dateStr = story.pubDate ? new Date(story.pubDate).toLocaleDateString('en-US', { month:'short', day:'numeric' }) : '';
-  const rewrittenHtml = story.rewritten
-    ? '<div class="card-rewritten"><span class="rewrite-label">✦ AI Rewrite</span>' + story.rewritten + '</div>'
-    : '';
-  const copyBtn = story.rewritten ? '<button class="btn-sm" onclick="copyText(' + idx + ')">COPY</button>' : '';
+  var dateStr = story.pubDate ? new Date(story.pubDate).toLocaleDateString('en-US', { month:'short', day:'numeric' }) : '';
+  var tagClass = story.scraped ? 'source-tag scraped' : 'source-tag';
+  var wc = story.rewritten ? wordCount(story.rewritten) : 0;
+  var wcColor = wc >= 280 ? '#00ff88' : wc >= 200 ? '#ffd600' : '#ff3c00';
+
   card.innerHTML =
     '<div class="card-meta">' +
-      '<span class="source-tag">' + story.source + '</span>' +
+      '<span class="' + tagClass + '">' + story.source + '</span>' +
       '<span class="pub-date">' + dateStr + '</span>' +
     '</div>' +
     '<div class="card-title">' + story.title + '</div>' +
-    (story.description ? '<div class="card-original">' + story.description + '</div>' : '') +
-    rewrittenHtml +
+    (story.description ? '<div class="card-original">' + story.description.slice(0,280) + '...</div>' : '') +
+    (story.rewritten ?
+      '<div class="card-rewritten">' +
+        '<span class="rewrite-label">✦ AI Rewrite</span>' +
+        story.rewritten +
+        '<div class="word-count" style="color:' + wcColor + '">' + wc + ' words</div>' +
+      '</div>' : '') +
     '<div class="card-actions">' +
       '<button class="btn-sm rewrite-btn" id="rbtn-' + idx + '" onclick="rewriteSingle(' + idx + ')">' +
         (story.rewritten ? 'REWRITE AGAIN' : 'REWRITE') +
       '</button>' +
-      copyBtn +
+      (story.rewritten ? '<button class="btn-sm" onclick="copyText(' + idx + ')">COPY</button>' : '') +
       '<a class="original-link" href="' + story.link + '" target="_blank">&#8599; ORIGINAL</a>' +
     '</div>';
   return card;
 }
 
 function updateCard(idx) {
-  const el = document.getElementById('card-' + idx);
+  var el = document.getElementById('card-' + idx);
   if (el) el.replaceWith(createCard(stories[idx], idx));
 }
 
+// ─── Rewrite ──────────────────────────────────────────────────────────────────
 async function rewriteSingle(idx) {
-  const key = document.getElementById('apiKey').value.trim();
+  var key = document.getElementById('apiKey').value.trim();
   if (!key) { showToast('Add your OpenAI key!'); return; }
-  const btn = document.getElementById('rbtn-' + idx);
+  var btn = document.getElementById('rbtn-' + idx);
   if (btn) { btn.disabled = true; btn.textContent = 'WRITING...'; }
+
+  // If story was scraped and has no description, try to fetch the article body
+  if (stories[idx].scraped && !stories[idx].description) {
+    log('Fetching article body for "' + stories[idx].title.slice(0,40) + '..."');
+    try {
+      var raw = await fetchRaw(stories[idx].link);
+      var doc = new DOMParser().parseFromString(raw, 'text/html');
+      // Try common article body selectors
+      var bodyEl = doc.querySelector('article, .article-body, .post-content, .entry-content, main p');
+      if (bodyEl) {
+        stories[idx].description = bodyEl.textContent.replace(/\s+/g,' ').trim().slice(0,1500);
+        log('Article body fetched: ' + stories[idx].description.length + ' chars', 'ok');
+      }
+    } catch(e) {
+      log('Could not fetch article body: ' + e.message, 'warn');
+    }
+  }
+
   try {
     stories[idx].rewritten = await callOpenAI(key, stories[idx]);
     updateCard(idx); updateProgress(); showToast('Story rewritten ✓');
@@ -584,39 +508,68 @@ async function rewriteSingle(idx) {
   }
 }
 
+// ─── OpenAI Call ──────────────────────────────────────────────────────────────
 async function callOpenAI(apiKey, story) {
-  const style = document.getElementById('styleSelect').value;
-  const res = await fetch('https://api.openai.com/v1/chat/completions', {
+  var style = document.getElementById('styleSelect').value;
+  var systemPrompt = [
+    'You are a hip hop culture journalist writing for a digital publication. Your voice matches that of a ' + style + '.',
+    '',
+    'REWRITE RULES — follow these exactly:',
+    '1. TARGET LENGTH: 280–320 words. Do not stop short. Expand using verified context where needed.',
+    '2. NO ANALOGIES or JOKES borrowed from the original article. Invent none of your own either — stay factual.',
+    '3. NO PLAGIARISM: do not reproduce sentence structures, phrasing, or sequences from the original. Fully rework every idea in your own words.',
+    '4. CONTEXT EXPANSION: If the story is short, you may add factual context such as: chart positions, certified sales/streams figures, previous album/project names, label affiliations, confirmed tour dates, or award history — but ONLY facts you are confident are documented and accurate. If you are unsure of a specific figure, omit it rather than guess.',
+    '5. NO HALLUCINATION: never invent quotes, events, dates, or statistics. Stick to what is in the article or well-established public record.',
+    '6. STRUCTURE: Write in flowing paragraphs, not bullet points. Do not use headers.',
+    '7. OPENING: Start directly with the story. Never begin with "Here is...", "In a...", or any meta-preamble.',
+    '8. TONE: Match the ' + style + ' voice throughout — but keep all facts accurate regardless of tone.'
+  ].join('\n');
+
+  var userPrompt = 'Rewrite the following hip hop news story. Remember: 280–320 words, no borrowed analogies or jokes, no hallucinations.\n\nTitle: ' + story.title + '\n\nArticle content:\n' + (story.description || '(No body text available — expand from the title using only well-known documented facts about the artist or topic.)');
+
+  var res = await fetch('https://api.openai.com/v1/chat/completions', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + apiKey },
     body: JSON.stringify({
       model: 'gpt-4o',
-      max_tokens: 400,
+      max_tokens: 600,
+      temperature: 0.7,
       messages: [
-        { role: 'system', content: 'You are a hip hop culture writer with the voice of a ' + style + '. Write punchy, factual rewrites around 150 words. Never start with "Here is..." — jump straight in.' },
-        { role: 'user', content: 'Rewrite this hip hop news story:\n\nTitle: ' + story.title + '\n\nOriginal: ' + (story.description || '(no description — use the title)') }
+        { role: 'system', content: systemPrompt },
+        { role: 'user', content: userPrompt }
       ]
     })
   });
+
   if (!res.ok) {
-    const e = await res.json().catch(function() { return {}; });
+    var e = await res.json().catch(function() { return {}; });
     throw new Error((e.error && e.error.message) || 'HTTP ' + res.status);
   }
-  const data = await res.json();
+  var data = await res.json();
   return data.choices[0].message.content.trim();
 }
 
+// ─── Rewrite All ──────────────────────────────────────────────────────────────
 document.getElementById('rewriteAllBtn').addEventListener('click', async function() {
-  const key = document.getElementById('apiKey').value.trim();
+  var key = document.getElementById('apiKey').value.trim();
   if (!key) { showToast('Add your OpenAI key!'); return; }
-  const btn = document.getElementById('rewriteAllBtn');
+  var btn = document.getElementById('rewriteAllBtn');
   btn.disabled = true; btn.textContent = 'RUNNING...';
-  for (let i = 0; i < stories.length; i++) {
+  for (var i = 0; i < stories.length; i++) {
     if (stories[i].rewritten) continue;
     try {
+      // fetch body if scraped and empty
+      if (stories[i].scraped && !stories[i].description) {
+        try {
+          var raw = await fetchRaw(stories[i].link);
+          var doc = new DOMParser().parseFromString(raw, 'text/html');
+          var bodyEl = doc.querySelector('article, .article-body, .post-content, .entry-content, main p');
+          if (bodyEl) stories[i].description = bodyEl.textContent.replace(/\s+/g,' ').trim().slice(0,1500);
+        } catch(e) {}
+      }
       stories[i].rewritten = await callOpenAI(key, stories[i]);
       updateCard(i); updateProgress();
-      await new Promise(function(r) { setTimeout(r, 400); });
+      await new Promise(function(r) { setTimeout(r, 500); });
     } catch(e) {
       showToast('Stopped at story ' + (i+1) + ': ' + e.message);
       break;
@@ -627,20 +580,20 @@ document.getElementById('rewriteAllBtn').addEventListener('click', async functio
 });
 
 function updateProgress() {
-  const done = stories.filter(function(s) { return s.rewritten; }).length;
-  const total = stories.length;
+  var done = stories.filter(function(s) { return s.rewritten; }).length;
+  var total = stories.length;
   document.getElementById('rewriteBarText').textContent = done + ' of ' + total + ' stories rewritten';
   document.getElementById('progressFill').style.width = total ? ((done/total)*100) + '%' : '0%';
 }
 
 function copyText(idx) {
-  const s = stories[idx];
-  navigator.clipboard.writeText(s.title + '\n\n' + s.rewritten + '\n\nOriginal: ' + s.link).then(function() { showToast('Copied!'); });
+  var s = stories[idx];
+  navigator.clipboard.writeText(s.title + '\n\n' + s.rewritten + '\n\nSource: ' + s.link).then(function() { showToast('Copied!'); });
 }
 
-let toastTimeout;
+var toastTimeout;
 function showToast(msg) {
-  const t = document.getElementById('toast');
+  var t = document.getElementById('toast');
   t.textContent = msg; t.classList.add('show');
   clearTimeout(toastTimeout);
   toastTimeout = setTimeout(function() { t.classList.remove('show'); }, 3500);
