@@ -190,6 +190,23 @@ transform: translateY(120px); opacity: 0; transition: all 0.3s ease; z-index: 10
 @media(min-width: 500px) { .toast { left: auto; width: 300px; } }
 .toast.show { transform: translateY(0); opacity: 1; }
 
+/* ── Rewritten title ── */
+.card-rewritten-title {
+font-family: ‘Bebas Neue’, sans-serif;
+font-size: 1.25rem;
+letter-spacing: 1px;
+line-height: 1.1;
+color: #ff3c00;
+margin-top: -4px;
+}
+.card-rewritten-title::before {
+content: ’↳ ’;
+font-family: ‘Space Mono’, monospace;
+font-size: 0.65rem;
+color: #444444;
+vertical-align: middle;
+}
+
 /* ── Excerpt ── */
 .card-excerpt {
 font-size: 0.82rem;
@@ -653,6 +670,7 @@ function createCard(story, idx) {
       '<span class="pub-date" style="color:' + dateColor + '">' + dateStr + '</span>' +
     '</div>' +
     '<div class="card-title">' + story.title + '</div>' +
+    (story.rewrittenTitle ? '<div class="card-rewritten-title">' + story.rewrittenTitle + '</div>' : '') +
     (story.description ? '<div class="card-original">' + story.description.slice(0,280) + '...</div>' : '') +
     (story.rewritten ?
       '<div class="card-rewritten">' +
@@ -715,6 +733,7 @@ async function rewriteSingle(idx) {
     var result = await callOpenAI(key, stories[idx]);
     stories[idx].rewritten = result.body;
     stories[idx].excerpt = result.excerpt;
+    stories[idx].rewrittenTitle = result.title;
     updateCard(idx); updateProgress(); showToast('Story rewritten ✓');
   } catch(e) {
     showToast('Error: ' + e.message);
@@ -730,8 +749,9 @@ async function callOpenAI(apiKey, story) {
     '',
     'REWRITE RULES — follow these exactly:',
     '1. TARGET LENGTH: 280–320 words for the body. Do not stop short. Expand using verified context where needed.',
-    '   OUTPUT FORMAT: Return a JSON object with exactly two keys — no markdown fences, just raw JSON:',
-    '   { "excerpt": "...", "body": "..." }',
+    '   OUTPUT FORMAT: Return a JSON object with exactly three keys — no markdown fences, just raw JSON:',
+    '   { "title": "...", "excerpt": "...", "body": "..." }',
+    '   title: A rewritten headline. Punchy, specific, no clickbait. Max 12 words. Do not reproduce the original title verbatim.',
     '   excerpt: A single punchy sentence (max 30 words) that works as a post teaser. No quotes around it.',
     '   body: Clean HTML using only <p>, <blockquote>, <cite>, and <em> tags. No <h1>, <ul>, <strong>, <br>, or markdown.',
     '   - Each paragraph is its own <p>.',
@@ -749,7 +769,7 @@ async function callOpenAI(apiKey, story) {
     '10. TONE: Match the ' + style + ' voice throughout — but keep all facts accurate regardless of tone.'
   ].join('\n');
 
-  var userPrompt = 'Rewrite the following hip hop news story. Return ONLY a raw JSON object with keys "excerpt" and "body" — no markdown, no code fences. Remember: 280–320 words in body, album titles in <em> not quotes, preserve every named person/date/place/collaborator/stat, no borrowed analogies or jokes, no hallucinations.\n\nTitle: ' + story.title + '\n\nArticle content:\n' + (story.description || '(No body text available — expand from the title using only well-known documented facts about the artist or topic.)');
+  var userPrompt = 'Rewrite the following hip hop news story. Return ONLY a raw JSON object with keys "title", "excerpt", and "body" — no markdown, no code fences. Remember: 280–320 words in body, album titles in <em> not quotes, preserve every named person/date/place/collaborator/stat, no borrowed analogies or jokes, no hallucinations.\n\nTitle: ' + story.title + '\n\nArticle content:\n' + (story.description || '(No body text available — expand from the title using only well-known documented facts about the artist or topic.)');
 
   var res = await fetch('https://api.openai.com/v1/chat/completions', {
     method: 'POST',
@@ -775,10 +795,10 @@ async function callOpenAI(apiKey, story) {
   raw = raw.replace(/^```json\s*/i, '').replace(/^```\s*/i, '').replace(/\s*```$/,'').trim();
   try {
     var parsed = JSON.parse(raw);
-    return { body: (parsed.body || '').trim(), excerpt: (parsed.excerpt || '').trim() };
+    return { title: (parsed.title || '').trim(), body: (parsed.body || '').trim(), excerpt: (parsed.excerpt || '').trim() };
   } catch(e) {
     // Fallback: if model ignored JSON instruction, treat whole thing as body
-    return { body: raw, excerpt: '' };
+    return { title: '', body: raw, excerpt: '' };
   }
 }
 
@@ -803,6 +823,7 @@ document.getElementById('rewriteAllBtn').addEventListener('click', async functio
       var res2 = await callOpenAI(key, stories[i]);
       stories[i].rewritten = res2.body;
       stories[i].excerpt = res2.excerpt;
+      stories[i].rewrittenTitle = res2.title;
       updateCard(i); updateProgress();
       await new Promise(function(r) { setTimeout(r, 500); });
     } catch(e) {
@@ -938,7 +959,7 @@ async function pushToWP(idx) {
     var endpoint = cfg.siteUrl + '/wp-json/wp/v2/posts';
 
     var postData = {
-      title:   { raw: story.title },
+      title:   { raw: story.rewrittenTitle || story.title },
       content: { raw: buildWPContent(story) },
       excerpt: { raw: buildExcerpt(story) },
       status:  'draft'
