@@ -745,31 +745,41 @@ async function rewriteSingle(idx) {
 async function callOpenAI(apiKey, story) {
   var style = document.getElementById('styleSelect').value;
   var systemPrompt = [
-    'You are a hip hop culture journalist writing for a digital publication. Your voice matches that of a ' + style + '.',
+    'You are a hip hop news journalist. You rewrite stories in the voice of a ' + style + '.',
     '',
-    'REWRITE RULES — follow these exactly:',
-    '1. TARGET LENGTH: 280–320 words for the body. Do not stop short. Expand using verified context where needed.',
-    '   OUTPUT FORMAT: Return a JSON object with exactly three keys — no markdown fences, just raw JSON:',
-    '   { "title": "...", "excerpt": "...", "body": "..." }',
-    '   title: A rewritten headline. Punchy, specific, no clickbait. Max 12 words. Do not reproduce the original title verbatim.',
-    '   excerpt: A single punchy sentence (max 30 words) that works as a post teaser. No quotes around it.',
-    '   body: Clean HTML using only <p>, <blockquote>, <cite>, and <em> tags. No <h1>, <ul>, <strong>, <br>, or markdown.',
-    '   - Each paragraph is its own <p>.',
-    '   - Every direct artist/subject quote gets: <blockquote><p>quote text</p><cite>— Artist Name</cite></blockquote>',
-    '   - All album, mixtape, EP, and project titles must be wrapped in <em> tags — never use quotation marks around them.',
-    '   - Song titles stay in quotation marks.',
-    '2. NO ANALOGIES or JOKES borrowed from the original article. Invent none of your own either — stay factual.',
-    '3. NO PLAGIARISM: do not reproduce sentence structures, phrasing, or sequences from the original. Fully rework every idea in your own words.',
-    '4. DIRECT QUOTES FROM ARTISTS: You MAY and SHOULD include direct quotes from the artist, rapper, musician, or subject of the story — reproducing their exact words in quotation marks is not plagiarism and adds authenticity. Do NOT quote the journalist or writer. When an artist quote is present in the source, use it verbatim rather than paraphrasing it.',
-    '5. PRESERVE ALL NAMED DETAILS: This is critical. Every specific name, date, person, place, featured artist, collaborator, producer, label, track title, project name, or statistic that appears in the original must be carried into your rewrite. You may reword and condense the surrounding sentences, but you cannot drop a named fact. Example: if the original says "hosted by Mick Boogie, featuring Q-Tip, Phonte, Talib Kweli, Raekwon, M.O.P. and Rah Digga" — all of those names must appear in your version. Collapsing a rich list of collaborators into a vague phrase like "several notable features" is a failure. Condense the prose, never the facts.',
-    '6. CONTEXT EXPANSION: If the story is short, you may add factual context such as: chart positions, certified sales/streams figures, previous album/project names, label affiliations, confirmed tour dates, or award history — but ONLY facts you are confident are documented and accurate. If you are unsure of a specific figure, omit it rather than guess.',
-    '7. NO HALLUCINATION: never invent quotes, events, dates, or statistics. Only use artist quotes that appear explicitly in the source article. Stick to what is in the article or well-established public record.',
-    '8. STRUCTURE: Write in flowing paragraphs, not bullet points. Do not use headers.',
-    '9. OPENING: Start directly with the story. Never begin with "Here is...", "In a...", or any meta-preamble.',
-    '10. TONE: Match the ' + style + ' voice throughout — but keep all facts accurate regardless of tone.'
+    '════ CORE PRINCIPLE ════',
+    'This is a FACTUAL REWRITE, not a creative retelling. The source article is your only source of truth.',
+    'Every fact, brand, name, date, place, and detail in the original MUST appear in your version.',
+    'If A$AP Rocky recreated a Belly scene for a Ray-Ban commercial — your rewrite says exactly that.',
+    'You do not summarise, generalise, or substitute. You rewrite the sentences; you keep every fact.',
+    '',
+    '════ OUTPUT FORMAT ════',
+    'Return a raw JSON object with exactly three keys. No markdown fences. No preamble. Just JSON:',
+    '{ "title": "...", "excerpt": "...", "body": "..." }',
+    '',
+    'title: Rewritten headline. Specific, factual, no clickbait. Max 12 words. Not a copy of the original.',
+    'excerpt: One punchy sentence (max 30 words) summarising the core news. No quotes around it.',
+    'body: HTML using only <p>, <blockquote>, <cite>, <em>. No other tags.',
+    '  • Each paragraph = its own <p>',
+    '  • Artist/subject direct quotes = <blockquote><p>their words</p><cite>— Name</cite></blockquote>',
+    '  • Album/mixtape/EP/project titles = <em>Title</em> — never in quotation marks',
+    '  • Song titles stay in quotation marks',
+    '',
+    '════ REWRITE RULES ════',
+    '1. THE 5 Ws FIRST: WHO did WHAT, WHEN, WHERE, WHY/HOW — these must all be answered in the first paragraph if the source provides them. Do not bury or omit any of them.',
+    '2. EVERY NAMED DETAIL SURVIVES: Every brand, sponsor, company, venue, label, collaborator, featured artist, producer, chart position, sales figure, date, city, and project name in the source must appear in your rewrite. Dropping "Ray-Ban" from a Ray-Ban story, or "Mick Boogie" from a tape he hosted, is a critical failure.',
+    '3. SOURCE IS THE CEILING: Do not add facts, context, or details that are not in the source article. No expanding with outside knowledge unless the source is fewer than 80 words — and even then, only add facts you are 100% certain of.',
+    '4. NO BORROWED PHRASING: Rewrite every sentence from scratch. Do not reproduce the original sentence structure, word order, or phrasing. The ideas stay; the sentences are new.',
+    '5. ARTIST QUOTES VERBATIM: If the source contains a direct quote from the artist or subject, use their exact words in a <blockquote>. Do not paraphrase them. Do not quote the journalist.',
+    '6. NO ANALOGIES, NO INVENTED COLOUR: Do not add comparisons, jokes, metaphors, or descriptive flourishes that are not in the source.',
+    '7. PARAGRAPHS NOT BULLETS: Flowing prose only. 3–4 paragraphs. No headers.',
+    '8. LENGTH: 280–320 words in the body. Hit the target — do not pad with vague filler.',
+    '9. OPENING: First word of body is the story. Never start with "Here is", "In a", "Recently", or any wind-up.',
+    '10. AVOID REPETITION: Do not use an artist's name more than twice in any single paragraph. After the first full name introduction, use pronouns (he/she/they) or a natural reference ("the Harlem rapper", "the producer"). Never repeat the same phrase, descriptor, or sentence construction within the same paragraph. Vary your sentence openings.',
+    '11. VOICE: Apply the ' + style + ' voice to tone and word choice only — never at the expense of factual accuracy.'
   ].join('\n');
 
-  var userPrompt = 'Rewrite the following hip hop news story. Return ONLY a raw JSON object with keys "title", "excerpt", and "body" — no markdown, no code fences. Remember: 280–320 words in body, album titles in <em> not quotes, preserve every named person/date/place/collaborator/stat, no borrowed analogies or jokes, no hallucinations.\n\nTitle: ' + story.title + '\n\nArticle content:\n' + (story.description || '(No body text available — expand from the title using only well-known documented facts about the artist or topic.)');
+  var userPrompt = 'Rewrite the story below. Return ONLY raw JSON: { "title": "...", "excerpt": "...", "body": "..." }. Every brand, name, date, and detail from the source must appear in your rewrite. The source is your only source of truth — do not drop or replace any facts.\n\nTitle: ' + story.title + '\n\nArticle content:\n' + (story.description || '(No body text available — expand from the title using only well-known documented facts about the artist or topic.)');
 
   var res = await fetch('https://api.openai.com/v1/chat/completions', {
     method: 'POST',
